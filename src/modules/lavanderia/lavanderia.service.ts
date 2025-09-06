@@ -28,12 +28,14 @@ export class LavanderiaService {
     private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * Ingresar prenda a lavandería
-   */
+  
+   //Ingresar prenda a lavandería
+   
   async ingresarPrenda(dto: IngresarLavadoDto): Promise<Lavanderia> {
     const prenda = await this.prendasRepo.findOne({ where: { id: dto.id_prenda } });
-    if (!prenda) throw new NotFoundException('Prenda no encontrada');
+    if (!prenda) {
+      throw new NotFoundException('Prenda no encontrada');
+    }
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -47,7 +49,7 @@ export class LavanderiaService {
       });
       const savedLavado = await queryRunner.manager.save(lavado);
 
-      // Movimiento: envío a lavandería
+      // aqui va el movimiento envío a lavandería
       const movimiento = queryRunner.manager.create(Movimiento, {
         prenda,
         tipo_movimiento: TipoMovimiento.ENVIO_LAVANDERIA, // ✅ corregido
@@ -66,15 +68,19 @@ export class LavanderiaService {
     }
   }
 
-  /**
-   * Actualizar estado del proceso de lavandería
-   */
+  
+   // Actualizar estado del proceso de lavandería
+   
   async actualizarEstado(id: string, dto: ActualizarEstadoDto): Promise<Lavanderia> {
     const lavado = await this.lavanderiaRepo.findOne({ where: { id }, relations: ['prenda'] });
-    if (!lavado) throw new NotFoundException('Lavandería no encontrada');
+    if (!lavado) {
+      throw new NotFoundException('Lavandería no encontrada');
+    }
 
     lavado.estado = dto.estado;
-    if (dto.observacion) lavado.observacion = dto.observacion;
+    if (dto.observacion) {
+      lavado.observacion = dto.observacion;
+    }
     const savedLavado = await this.lavanderiaRepo.save(lavado);
 
     // Movimiento según estado actualizado
@@ -82,8 +88,9 @@ export class LavanderiaService {
       prenda: lavado.prenda,
       tipo_movimiento:
         dto.estado === EstadoLavado.FINALIZADO
-          ? TipoMovimiento.LAVADO_FINALIZADO // ✅ cierre de ciclo
-          : TipoMovimiento.REPROCESO,        // opcional: si vuelve a reproceso
+        //opciones en caso que cualva a reproceso o se finaliza
+          ? TipoMovimiento.LAVADO_FINALIZADO
+          : TipoMovimiento.REPROCESO,        
       observacion: dto.observacion,
       lavanderia: savedLavado,
     });
@@ -92,9 +99,9 @@ export class LavanderiaService {
     return savedLavado;
   }
 
-  /**
-   * Buscar registros de lavandería con filtros
-   */
+
+   // Buscar registros de lavandería con filtros
+
   async findAll(filter: LavanderiaFilter = {}): Promise<Lavanderia[]> {
     const where: FindOptionsWhere<Lavanderia> = {};
 
@@ -119,15 +126,16 @@ export class LavanderiaService {
     });
   }
 
-  /**
-   * Buscar un registro específico de lavandería
-   */
+  
+  // Buscar un registro específico de lavandería
   async findOne(id: string): Promise<Lavanderia> {
     const lavado = await this.lavanderiaRepo.findOne({
       where: { id },
       relations: ['prenda', 'movimientos'],
     });
-    if (!lavado) throw new NotFoundException('Lavandería no encontrada');
+    if (!lavado) {
+      throw new NotFoundException('Lavandería no encontrada');
+    }
     return lavado;
   }
 }

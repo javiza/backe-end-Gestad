@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 interface JwtPayload {
-  sub: string;  // ID del usuario
+  sub: string;  // aca esta el id del usuario
   email: string;
   rol: 'administrador' | 'usuario';
 }

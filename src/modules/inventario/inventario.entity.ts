@@ -11,8 +11,8 @@ export class Inventario {
   prenda: Prenda;
 
   @Column({ type: 'int', default: 0 })
-  cantidad_stock: number;  // stock actual disponible
+  cantidad_stock: number;  // aca el stock actual disponible
 
   @Column({ type: 'int', default: 0 })
-  cantidad_baja: number;   // acumulado de bajas
+  cantidad_baja: number;   // aca el acumulado de bajas
 }

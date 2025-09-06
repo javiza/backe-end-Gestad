@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class InventarioController {
   constructor(private readonly inventarioService: InventarioService) {}
 
-  // Consulta el stock de una prenda específica
+  // Consulta el stock de una prenda específica(uso de id)
   @Get(':id_prenda')
   getStock(@Param('id_prenda') id_prenda: string) {
     return this.inventarioService.getStock(id_prenda);

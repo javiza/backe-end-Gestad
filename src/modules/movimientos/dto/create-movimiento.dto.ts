@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional, IsInt, Min, IsEnum, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';//ojo se instalo swagger para que el DTO se vea en la documentacion
 import { TipoMovimiento } from '../movimiento.entity';
 
 export class CreateMovimientoDto {

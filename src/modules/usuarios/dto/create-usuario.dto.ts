@@ -1,13 +1,6 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  IsIn,
-  Matches,
-} from 'class-validator';
+import {IsEmail, IsNotEmpty, IsString, MinLength, IsIn, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-
+//falta la logica para validar rut chileno
 export class CreateUsuarioDto {
   @ApiProperty({ example: 'Juan Pérez', description: 'Nombre completo del usuario' })
   @IsNotEmpty()

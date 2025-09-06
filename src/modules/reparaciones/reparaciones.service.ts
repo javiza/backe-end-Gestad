@@ -6,8 +6,8 @@ import { Prenda } from '../prendas/prendas.entity';
 import { CreateReparacionDto } from './dto/create-reparacion.dto';
 
 // Para exportar en Excel/PDF
-import * as ExcelJS from 'exceljs';
-// Para PDF podrías usar pdfkit, pero aquí solo muestro excel para ejemplo
+import * as ExcelJS from 'exceljs';//ojo puede que deba retirar todo lo relacionado para los pdfs
+
 
 interface ReparacionFilter {
   prendaId?: string;
@@ -28,7 +28,9 @@ export class ReparacionesService {
 
   async create(dto: CreateReparacionDto): Promise<Reparacion> {
     const prenda = await this.prendasRepo.findOne({ where: { id: dto.prendaId } });
-    if (!prenda) throw new NotFoundException('Prenda no encontrada');
+    if (!prenda) {
+      throw new NotFoundException('Prenda no encontrada');
+    }
 
     const reparacion = this.repo.create({
       prenda,
@@ -87,7 +89,7 @@ export class ReparacionesService {
       return { export: 'excel', buffer };
     }
 
-    // Aquí podrías agregar lógica para PDF si quieres
+    //en caso de se puede agregar la logica para exportar el excel apdf
 
     return {
       total,
@@ -98,13 +100,17 @@ export class ReparacionesService {
   }
   async findOne(id: string): Promise<Reparacion> {
     const rep = await this.repo.findOne({ where: { id }, relations: ['prenda', 'movimientos'] });
-    if (!rep) throw new NotFoundException('Reparación no encontrada');
+    if (!rep) {
+      throw new NotFoundException('Reparación no encontrada');
+    }
     return rep;
   }
 
   async remove(id: string): Promise<void> {
     const rep = await this.repo.findOne({ where: { id } });
-    if (!rep) throw new NotFoundException('Reparación no encontrada');
+    if (!rep) {
+      throw new NotFoundException('Reparación no encontrada');
+    }
     await this.repo.remove(rep);
   }
 }

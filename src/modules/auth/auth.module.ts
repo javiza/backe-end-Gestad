@@ -11,7 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule, // <--- asegúrate que está aquí (si no es global)
+    ConfigModule, 
     UsuariosModule,
     PassportModule,
     JwtModule.registerAsync({

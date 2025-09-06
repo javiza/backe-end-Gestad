@@ -13,7 +13,7 @@ import {
 import { UnidadesClinicasService } from './unidades_clinicas.service';
 import { CreateUnidadClinicaDto } from './dto/create-unidad_clinica.dto';
 import { UpdateUnidadClinicaDto } from './dto/update-unidad_clinica.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';//quizas deba sacarlo
 
 @ApiTags('unidades-clinicas')
 @ApiBearerAuth()

@@ -26,7 +26,7 @@ export class BajasService {
     @InjectRepository(Inventario)
     private readonly inventarioRepo: Repository<Inventario>,
 
-    private readonly dataSource: DataSource, // ✅ para transacciones
+    private readonly dataSource: DataSource, // ojo para realizar las transacciones
   ) {}
 
   async create(createBajaDto: CreateBajaDto): Promise<Baja> {
@@ -86,7 +86,7 @@ export class BajasService {
       await queryRunner.release();
     }
   }
-
+//busca todos
  async findAll(filter: BajaFilter = {}): Promise<Baja[]> {
     const where: FindOptionsWhere<Baja> = {};
 
@@ -106,19 +106,23 @@ export class BajasService {
 
     return this.bajasRepo.find({ where, relations: ['prenda', 'movimientos'], order: { fecha_baja: 'DESC' } });
   }
-
+// busca por id
   async findOne(id: string): Promise<Baja> {
     const baja = await this.bajasRepo.findOne({
       where: { id },
       relations: ['prenda', 'movimientos'],
     });
-    if (!baja) throw new NotFoundException('Baja no encontrada');
+    if (!baja) {
+      throw new NotFoundException('Baja no encontrada');
+    }
     return baja;
   }
-
+// elminar por id
   async remove(id: string): Promise<void> {
     const baja = await this.bajasRepo.findOne({ where: { id } });
-    if (!baja) throw new NotFoundException('Baja no encontrada');
+    if (!baja) {
+      throw new NotFoundException('Baja no encontrada');
+    }
     await this.bajasRepo.remove(baja);
   }
 }

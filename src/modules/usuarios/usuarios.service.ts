@@ -21,10 +21,10 @@ export class UsuariosService {
     try {
       return await this.usuariosRepo.save(usuario);
     } catch (e) {
-      if (e.code === '23505') { // Postgres error code for unique violation
+      if (e.code === '23505') { //codigo para error en caso que el rut ya existe
         throw new ConflictException('Email o RUT ya existen');
       }
-      throw e; // Otros errores
+      throw e; // en caso de otros errores
     }
   }
 

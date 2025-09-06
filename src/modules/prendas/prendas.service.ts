@@ -18,7 +18,9 @@ export class PrendasService {
 
   async findOne(id: string) {
     const prenda = await this.repo.findOne({ where: { id } });
-    if (!prenda) throw new NotFoundException('Prenda no encontrada');
+    if (!prenda) {
+      throw new NotFoundException('Prenda no encontrada');
+    }
     return prenda;
   }
 

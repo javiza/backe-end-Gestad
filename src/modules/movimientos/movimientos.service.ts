@@ -8,7 +8,7 @@ import { UnidadClinica } from '../unidades_clinicas/unidades_clinicas.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Baja } from '../bajas/bajas.entity';
 import { Lavanderia } from '../lavanderia/lavanderia.entity';
-import { DeepPartial } from 'typeorm';// para que reconozca como objeto y no array
+import { DeepPartial } from 'typeorm';// esto lo instale para que reconozca como objeto y no array
 @Injectable()
 export class MovimientosService {
   constructor(

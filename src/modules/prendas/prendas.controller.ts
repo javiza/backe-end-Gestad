@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Body,
-  HttpCode,
-  HttpStatus,
+import { Controller, Get, Post, Put, Delete, Param, Body, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { PrendasService } from './prendas.service';
 import { CreatePrendaDto } from './dto/create-prenda.dto';

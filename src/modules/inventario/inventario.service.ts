@@ -18,7 +18,7 @@ export class InventarioService {
     private readonly inventarioRepo: Repository<Inventario>,
   ) {}
 
-  // Lógica para actualizar inventario según movimientos
+  // en este pedazo de codigo esta la logica para actualizar inventario según movimientos
   async aplicarMovimiento(prendaId: string, tipo: string, cantidad: number) {
     let inventario = await this.inventarioRepo.findOne({ where: { prenda: { id: prendaId } }, relations: ['prenda'] });
     if (!inventario) {
@@ -28,31 +28,31 @@ export class InventarioService {
         cantidad_baja: 0,
       });
     }
-
+// acá un switch para los tipos de movimientos
     switch (tipo) {
       case 'ingreso':
         inventario.cantidad_stock += cantidad;
         break;
       case 'baja':
         inventario.cantidad_stock -= cantidad;
-        if (inventario.cantidad_stock < 0) inventario.cantidad_stock = 0;
+        inventario.cantidad_stock = Math.max(inventario.cantidad_stock, 0)
         inventario.cantidad_baja += cantidad;
         break;
       case 'reparacion':
-        // Puedes decidir si esto afecta stock o solo registra eventos
         break;
       case 'lavanderia':
-        // Puedes decidir si esto afecta stock o solo registra eventos
         break;
-      // otros tipos: agregar tu lógica
+      
     }
 
     return this.inventarioRepo.save(inventario);
   }
-
+// aqui se muestra el sock segun el id de la prenda
   async getStock(id_prenda: string): Promise<number> {
     const inventario = await this.inventarioRepo.findOne({ where: { prenda: { id: id_prenda } } });
-    if (!inventario) throw new NotFoundException('Inventario no encontrado');
+    if (!inventario) {
+      throw new NotFoundException('Inventario no encontrado');
+    }
     return inventario.cantidad_stock;
   }
 

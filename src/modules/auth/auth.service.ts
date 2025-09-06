@@ -13,11 +13,17 @@ export class AuthService {
 
   async validateUser(email: string, pass: string) {
   const user = await this.usuariosService.findByEmail(email);
-  if (!user) throw new UnauthorizedException('Credenciales inválidas');
-  if (!user.activo) throw new UnauthorizedException('Usuario desactivado');
+  if (!user) {
+    throw new UnauthorizedException('Credenciales inválidas');
+  }
+  if (!user.activo) {
+    throw new UnauthorizedException('Usuario desactivado');
+  }
   
   const passwordValid = await bcrypt.compare(pass, user.password);
-  if (!passwordValid) throw new UnauthorizedException('Credenciales inválidas');
+  if (!passwordValid) {
+    throw new UnauthorizedException('Credenciales inválidas');
+  }
 
   return user;
 }
@@ -30,7 +36,7 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
-        nombre_usuario: user.nombre_usuario, // ✅ corregido
+        nombre_usuario: user.nombre_usuario, 
         email: user.email,
         rol: user.rol,
       },

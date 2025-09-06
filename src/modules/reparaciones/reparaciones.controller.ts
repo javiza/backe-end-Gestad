@@ -23,7 +23,7 @@ export class ReparacionesController {
     @Query('hasta') hasta?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-    @Query('export') exportFormat?: string, // "excel" | "pdf"
+    @Query('export') exportFormat?: string, // ojo aca  alo mejor debo retirar "excel" | "pdf"
   ) {
     return this.reparacionesService.findAll({
       prendaId,

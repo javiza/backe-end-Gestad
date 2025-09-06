@@ -18,7 +18,9 @@ export class UnidadesClinicasService {
 
   async findOne(id: string) {
     const unidad = await this.repo.findOne({ where: { id } });
-    if (!unidad) throw new NotFoundException('Unidad clínica no encontrada');
+    if (!unidad) {
+      throw new NotFoundException('Unidad clínica no encontrada');
+    }
     return unidad;
   }
 
