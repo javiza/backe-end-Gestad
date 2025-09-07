@@ -16,7 +16,7 @@ const AppDataSource = new DataSource({
   port: 5432,
   username: 'jona',
   password: '1234',
-  database: 'gestadrop',
+  database: 'gestadroperia',
   entities: [Usuario, Movimiento, Prenda, Baja, Lavanderia, Reparacion, UnidadClinica, Inventario], // <-- Agrégala aquí
   synchronize: false, // aca true solo para desarrollo en caso de que cree tablas automáticamente
 });

@@ -41,8 +41,12 @@ export class UsuariosService {
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
-    return this.usuariosRepo.findOne({ where: { email } });
+  return this.usuariosRepo.findOne({
+    where: { email },
+    select: ['id', 'nombre_usuario', 'email', 'rol', 'activo', 'password'], 
+     });
   }
+
 
   async update(id: string, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {
     const usuario = await this.usuariosRepo.preload({ id, ...updateUsuarioDto });
