@@ -1,38 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+// prendas.entity.ts
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
 import { Movimiento } from '../movimientos/movimiento.entity';
-import { Lavanderia } from '../lavanderia/lavanderia.entity';
-import { Reparacion } from '../reparaciones/reparaciones.entity';
-import { Baja } from '../bajas/bajas.entity';
+import { InventarioGeneral } from '../inventario/inventario.entity';
 
 @Entity('prendas')
 export class Prenda {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn({ name: 'id_prenda' })
+  id_prenda: number;
 
-  @Column()
-  nombre_prenda: string;
+  @Column({ type: 'varchar', length: 100 })
+  nombre: string;
 
-  @Column()
-  cantidad: number;
+  @Column({ type: 'text', nullable: true })
+  detalle?: string;
 
-  @Column({ nullable: true })
-  detalle: string;
+  @Column({ type: 'float', nullable: true })
+  peso?: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 20 })
   tipo: string;
 
-  @CreateDateColumn()
-  fecha_ingreso: Date;
-
+  // 🔹 Relación 1 a N con movimientos
   @OneToMany(() => Movimiento, mov => mov.prenda)
   movimientos: Movimiento[];
 
-  @OneToMany(() => Lavanderia, lav => lav.prenda)
-  lavanderia: Lavanderia[];
-
-  @OneToMany(() => Reparacion, rep => rep.prenda)
-  reparaciones: Reparacion[];
-
-  @OneToMany(() => Baja, baja => baja.prenda)
-  bajas: Baja[];
+  // 🔹 Relación 1 a 1 con inventario
+  @OneToOne(() => InventarioGeneral, inv => inv.prenda)
+  inventario: InventarioGeneral;
 }

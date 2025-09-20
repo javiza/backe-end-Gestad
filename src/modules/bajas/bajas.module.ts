@@ -4,10 +4,10 @@ import { BajasService } from './bajas.service';
 import { BajasController } from './bajas.controller';
 import { Baja } from './bajas.entity';
 import { Movimiento } from '../movimientos/movimiento.entity';
-import { Inventario } from '../inventario/inventario.entity';
+import { InventarioGeneral } from '../inventario/inventario.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Baja, Movimiento, Inventario])],
+  imports: [TypeOrmModule.forFeature([Baja, Movimiento, InventarioGeneral])],
   controllers: [BajasController],
   providers: [BajasService],
 })

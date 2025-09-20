@@ -38,7 +38,7 @@ export class UsuariosController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.usuariosService.findOne(id);
   }
 
@@ -49,7 +49,7 @@ export class UsuariosController {
   @Roles('administrador')
   @Put(':id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+  update(@Param('id') id: number, @Body() updateUsuarioDto: UpdateUsuarioDto) {
     return this.usuariosService.update(id, updateUsuarioDto);
   }
 
@@ -60,7 +60,7 @@ export class UsuariosController {
   @Roles('administrador')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: number): Promise<void> {
     await this.usuariosService.remove(id);
   }
 }

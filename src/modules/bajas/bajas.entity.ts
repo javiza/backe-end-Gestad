@@ -1,24 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
-import { Prenda } from '../prendas/prendas.entity';
-import { Movimiento } from '../movimientos/movimiento.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import { Movimiento } from '../movimientos/movimiento.entity'; 
 
 @Entity('bajas')
 export class Baja {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn({ name: 'id_baja' })
+  id: number;
 
-  @ManyToOne(() => Prenda, prenda => prenda.bajas, { onDelete: 'CASCADE' })
-  prenda: Prenda;
-
-  @CreateDateColumn()
-  fecha_baja: Date;
-
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: false })
   motivo: string;
 
-  @Column({ type: 'int', default: 1 })
-  cantidad: number;
+  @CreateDateColumn({ name: 'fecha' })
+  fecha: Date;
 
-  @OneToMany(() => Movimiento, mov => mov.baja)
+  @OneToMany(() => Movimiento, movimiento => movimiento.baja)
   movimientos: Movimiento[];
 }

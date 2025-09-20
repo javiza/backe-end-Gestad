@@ -1,44 +1,75 @@
-import { IsNotEmpty, IsOptional, IsInt, Min, IsEnum, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';//ojo se instalo swagger para que el DTO se vea en la documentacion
-import { TipoMovimiento } from '../movimiento.entity';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Min,
+  IsEnum,
+  IsString,
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { TipoMovimientoDB, Operacion } from '../movimiento.entity';
 
 export class CreateMovimientoDto {
-  @ApiProperty({ example: 'uuid-prenda', description: 'ID de la prenda' })
+  @ApiProperty({ example: 1, description: 'ID de la prenda' })
   @IsNotEmpty()
-  @IsString()
-  prendaId: string;
+  @IsInt()
+  prendaId: number;
 
   @ApiProperty({ example: 1, description: 'Cantidad de prendas' })
   @IsInt()
   @Min(1)
   cantidad: number;
 
-  @ApiProperty({ example: 'ingreso', enum: TipoMovimiento })
-  @IsEnum(TipoMovimiento)
-  tipo_movimiento: TipoMovimiento;
+  @ApiProperty({ example: 'roperia', enum: TipoMovimientoDB })
+  @IsEnum(TipoMovimientoDB)
+  tipo_movimiento: TipoMovimientoDB;
 
-  @ApiProperty({ example: 'uuid-unidad', required: false })
-  @IsOptional()
-  @IsString()
-  unidadId?: string;
+  @ApiProperty({
+    example: 'entrada',
+    enum: Operacion,
+    description: 'Define si el movimiento suma (entrada) o resta (salida) del stock',
+  })
+  @IsNotEmpty() 
+  @IsEnum(Operacion)
+  operacion: Operacion;
 
-  @ApiProperty({ example: 'uuid-usuario', required: false })
+  @ApiProperty({ example: 1, required: false })
   @IsOptional()
-  @IsString()
-  usuarioId?: string;
+  @IsInt()
+  unidadId?: number;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsInt()
+  usuarioId?: number;
 
   @ApiProperty({ example: 'Prenda asignada', required: false })
   @IsOptional()
   @IsString()
   observacion?: string;
 
-  @ApiProperty({ example: 'uuid-baja', required: false })
+  @ApiProperty({ example: 1, required: false })
   @IsOptional()
-  @IsString()
-  bajaId?: string;
+  @IsInt()
+  bajaId?: number;
 
-  @ApiProperty({ example: 'uuid-lavanderia', required: false })
+  @ApiProperty({ example: 1, required: false })
   @IsOptional()
-  @IsString()
-  lavanderiaId?: string;
+  @IsInt()
+  lavanderiaId?: number;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsInt()
+  reprocesoId?: number;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsInt()
+  reparacionId?: number;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsInt()
+  roperiaId?: number;
 }

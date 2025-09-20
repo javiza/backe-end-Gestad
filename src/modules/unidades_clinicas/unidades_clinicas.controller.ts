@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UnidadesClinicasService } from './unidades_clinicas.service';
 import { CreateUnidadClinicaDto } from './dto/create-unidad_clinica.dto';
@@ -32,9 +33,18 @@ export class UnidadesClinicasController {
   @ApiResponse({ status: 200, description: 'Unidad clínica encontrada' })
   @ApiResponse({ status: 404, description: 'Unidad clínica no encontrada' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.unidadesService.findOne(id);
   }
+
+  @Get(':id/movimientos')
+  findWithMovimientos(
+  @Param('id') id: number,
+  @Query('desde') desde?: string,
+  @Query('hasta') hasta?: string,
+) {
+  return this.unidadesService.findWithMovimientos(id, desde, hasta);
+}
 
   @ApiOperation({ summary: 'Crear unidad clínica' })
   @ApiResponse({ status: 201, description: 'Unidad clínica creada' })
@@ -48,7 +58,7 @@ export class UnidadesClinicasController {
   @ApiResponse({ status: 200, description: 'Unidad clínica actualizada' })
   @ApiResponse({ status: 404, description: 'Unidad clínica no encontrada' })
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateUnidadClinicaDto) {
+  update(@Param('id') id: number, @Body() dto: UpdateUnidadClinicaDto) {
     return this.unidadesService.update(id, dto);
   }
 
@@ -57,7 +67,7 @@ export class UnidadesClinicasController {
   @ApiResponse({ status: 404, description: 'Unidad clínica no encontrada' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: number): Promise<void> {
     await this.unidadesService.remove(id);
   }
 }

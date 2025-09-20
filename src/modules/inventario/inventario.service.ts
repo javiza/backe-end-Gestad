@@ -1,84 +1,37 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual, LessThanOrEqual, FindOptionsWhere } from 'typeorm';
-import { Inventario } from './inventario.entity';
-
-interface InventarioFilter {
-  min?: number;
-  max?: number;
-  prendaId?: string;
-  page?: number;
-  limit?: number;
-}
+import { Repository } from 'typeorm';
+import { InventarioGeneral } from './inventario.entity'; // ✅ usa el archivo correcto
 
 @Injectable()
 export class InventarioService {
   constructor(
-    @InjectRepository(Inventario)
-    private readonly inventarioRepo: Repository<Inventario>,
+    @InjectRepository(InventarioGeneral)
+    private readonly inventarioRepo: Repository<InventarioGeneral>,
   ) {}
 
-  // en este pedazo de codigo esta la logica para actualizar inventario según movimientos
-  async aplicarMovimiento(prendaId: string, tipo: string, cantidad: number) {
-    let inventario = await this.inventarioRepo.findOne({ where: { prenda: { id: prendaId } }, relations: ['prenda'] });
-    if (!inventario) {
-      inventario = this.inventarioRepo.create({
-        prenda: { id: prendaId } as any,
-        cantidad_stock: 0,
-        cantidad_baja: 0,
-      });
-    }
-// acá un switch para los tipos de movimientos
-    switch (tipo) {
-      case 'ingreso':
-        inventario.cantidad_stock += cantidad;
-        break;
-      case 'baja':
-        inventario.cantidad_stock -= cantidad;
-        inventario.cantidad_stock = Math.max(inventario.cantidad_stock, 0)
-        inventario.cantidad_baja += cantidad;
-        break;
-      case 'reparacion':
-        break;
-      case 'lavanderia':
-        break;
-      
-    }
+  // ✅ obtiene el stock de una prenda
+  async getStock(id_prenda: number): Promise<number> {
+    const inventario = await this.inventarioRepo.findOne({
+      where: { prenda: { id_prenda: id_prenda } },
+      relations: ['prenda'],
+    });
 
-    return this.inventarioRepo.save(inventario);
-  }
-// aqui se muestra el sock segun el id de la prenda
-  async getStock(id_prenda: string): Promise<number> {
-    const inventario = await this.inventarioRepo.findOne({ where: { prenda: { id: id_prenda } } });
     if (!inventario) {
       throw new NotFoundException('Inventario no encontrado');
     }
-    return inventario.cantidad_stock;
+    return inventario.cantidad;
   }
 
-  async getInventario(filter: InventarioFilter = {}) {
-    const where: FindOptionsWhere<Inventario> = {};
-
-    if (filter.min !== undefined) {
-      where.cantidad_stock = MoreThanOrEqual(filter.min);
-    }
-    if (filter.max !== undefined) {
-      where.cantidad_stock = Object.assign(where.cantidad_stock || {}, LessThanOrEqual(filter.max));
-    }
-    if (filter.prendaId) {
-      where.prenda = { id: filter.prendaId } as any;
-    }
-
-    const page = filter.page ?? 1;
-    const limit = filter.limit ?? 20;
+  // ✅ lista el inventario con paginación
+  async getInventario(page = 1, limit = 20) {
     const skip = (page - 1) * limit;
 
     const [data, total] = await this.inventarioRepo.findAndCount({
-      where,
       relations: ['prenda'],
       skip,
       take: limit,
-      order: { cantidad_stock: 'DESC' },
+      order: { cantidad: 'DESC' },
     });
 
     return {

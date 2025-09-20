@@ -1,56 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Reparacion } from './reparaciones.entity';
 import { Repository, Between, FindOptionsWhere } from 'typeorm';
-import { Prenda } from '../prendas/prendas.entity';
+import { Reparacion } from './reparaciones.entity';
 import { CreateReparacionDto } from './dto/create-reparacion.dto';
-
-// Para exportar en Excel/PDF
-import * as ExcelJS from 'exceljs';//ojo puede que deba retirar todo lo relacionado para los pdfs
-
-
+import { UpdateReparacionDto } from './dto/update-reparacion.dto';
 interface ReparacionFilter {
-  prendaId?: string;
   desde?: string;
   hasta?: string;
   page?: number;
   limit?: number;
-  exportFormat?: string;
 }
+
 @Injectable()
 export class ReparacionesService {
   constructor(
     @InjectRepository(Reparacion)
     private readonly repo: Repository<Reparacion>,
-    @InjectRepository(Prenda)
-    private readonly prendasRepo: Repository<Prenda>,
   ) {}
 
+  /** Crear una reparación */
   async create(dto: CreateReparacionDto): Promise<Reparacion> {
-    const prenda = await this.prendasRepo.findOne({ where: { id: dto.prendaId } });
-    if (!prenda) {
-      throw new NotFoundException('Prenda no encontrada');
-    }
-
     const reparacion = this.repo.create({
-      prenda,
-      observacion: dto.observacion,
-      veces_reparada: dto.veces_reparada ?? 1,
+      descripcion: dto.descripcion,
+      fecha_fin: dto.fecha_fin ?? null,
     });
-
     return this.repo.save(reparacion);
   }
 
+  /** Listar reparaciones con filtros y paginación */
   async findAll(filter: ReparacionFilter = {}) {
     const where: FindOptionsWhere<Reparacion> = {};
 
-    if (filter.prendaId) {
-      where.prenda = { id: filter.prendaId } as any;
-    }
     if (filter.desde && filter.hasta) {
-      where.fecha_reparacion = Between(new Date(filter.desde), new Date(filter.hasta));
+      where.fecha_inicio = Between(new Date(filter.desde), new Date(filter.hasta));
     } else if (filter.desde) {
-      where.fecha_reparacion = Between(new Date(filter.desde), new Date());
+      where.fecha_inicio = Between(new Date(filter.desde), new Date());
     }
 
     const page = filter.page ?? 1;
@@ -59,58 +43,58 @@ export class ReparacionesService {
 
     const [data, total] = await this.repo.findAndCount({
       where,
-      relations: ['prenda', 'movimientos'],
-      order: { fecha_reparacion: 'DESC' },
+      order: { fecha_inicio: 'DESC' },
       skip,
       take: limit,
     });
 
-    // Exportar a Excel
-    if (filter.exportFormat === 'excel') {
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Reparaciones');
-      sheet.columns = [
-        { header: 'ID', key: 'id', width: 36 },
-        { header: 'Fecha', key: 'fecha', width: 20 },
-        { header: 'Prenda', key: 'prenda', width: 20 },
-        { header: 'Observación', key: 'observacion', width: 30 },
-        { header: 'Veces Reparada', key: 'veces_reparada', width: 10 },
-      ];
-      data.forEach(r => {
-        sheet.addRow({
-          id: r.id,
-          fecha: r.fecha_reparacion,
-          prenda: r.prenda?.nombre_prenda,
-          observacion: r.observacion,
-          veces_reparada: r.veces_reparada,
-        });
-      });
-      const buffer = await workbook.xlsx.writeBuffer();
-      return { export: 'excel', buffer };
-    }
-
-    //en caso de se puede agregar la logica para exportar el excel apdf
-
-    return {
-      total,
-      page,
-      limit,
-      data,
-    };
+    return { total, page, limit, data };
   }
-  async findOne(id: string): Promise<Reparacion> {
-    const rep = await this.repo.findOne({ where: { id }, relations: ['prenda', 'movimientos'] });
+
+  /** Buscar reparación por ID */
+  async findOne(id: number): Promise<Reparacion> {
+    const rep = await this.repo.findOne({ where: { id } });
     if (!rep) {
       throw new NotFoundException('Reparación no encontrada');
     }
     return rep;
   }
 
-  async remove(id: string): Promise<void> {
-    const rep = await this.repo.findOne({ where: { id } });
-    if (!rep) {
-      throw new NotFoundException('Reparación no encontrada');
-    }
+  /** Actualizar reparación */
+  async update(id: number, dto: UpdateReparacionDto): Promise<Reparacion> {
+  const rep = await this.findOne(id);
+  Object.assign(rep, dto);
+  return this.repo.save(rep);
+}
+
+  /** Eliminar reparación */
+  async remove(id: number): Promise<void> {
+    const rep = await this.findOne(id);
     await this.repo.remove(rep);
   }
+  //buscar movimiento por id
+  async findWithMovimientos(id: number, desde?: string, hasta?: string): Promise<Reparacion> {
+  const query = this.repo.createQueryBuilder('reparacion')
+    .leftJoinAndSelect('reparacion.movimientos', 'movimientos')
+    .leftJoinAndSelect('movimientos.prenda', 'prenda')
+    .leftJoinAndSelect('movimientos.usuario', 'usuario')
+    .where('reparacion.id = :id', { id });
+
+  if (desde && hasta) {
+    query.andWhere('movimientos.fecha BETWEEN :desde AND :hasta', { desde, hasta });
+  } else if (desde) {
+    query.andWhere('movimientos.fecha >= :desde', { desde });
+  } else if (hasta) {
+    query.andWhere('movimientos.fecha <= :hasta', { hasta });
+  }
+
+  const reparacion = await query.getOne();
+
+  if (!reparacion) {
+    throw new NotFoundException('Reparación no encontrada');
+  }
+
+  return reparacion;
+}
+
 }

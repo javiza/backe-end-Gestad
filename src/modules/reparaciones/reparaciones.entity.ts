@@ -1,24 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, OneToMany } from 'typeorm';
-import { Prenda } from '../prendas/prendas.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Movimiento } from '../movimientos/movimiento.entity';
-
 @Entity('reparaciones')
 export class Reparacion {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn({ name: 'id_reparacion' })
+  id: number;
 
-  @ManyToOne(() => Prenda, prenda => prenda.reparaciones)
-  prenda: Prenda;
+  @Column({ type: 'text' })
+  descripcion: string;
 
-  @CreateDateColumn()
-  fecha_reparacion: Date;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  fecha_inicio: Date;
 
-  @Column({ nullable: true })
-  observacion: string;
+  @Column({ type: 'timestamp', nullable: true })
+  fecha_fin: Date | null;
 
-  @Column({ default: 1 })
-  veces_reparada: number;
-
-  @OneToMany(() => Movimiento, mov => mov.prenda)
-  movimientos: Movimiento[];
+  @OneToMany(() => Movimiento, mov => mov.reparacion)
+    movimientos: Movimiento[];
 }

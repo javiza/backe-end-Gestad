@@ -20,7 +20,7 @@ export class MovimientosController {
   @ApiResponse({ status: 200, description: 'Movimiento encontrado' })
   @ApiResponse({ status: 404, description: 'Movimiento no encontrado' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.movimientosService.findOne(id);
   }
 
@@ -37,7 +37,7 @@ export class MovimientosController {
   @ApiResponse({ status: 404, description: 'Movimiento no encontrado' })
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: number): Promise<void> {
     await this.movimientosService.remove(id);
   }
 }

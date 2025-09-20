@@ -1,39 +1,46 @@
-import { Controller, Get, Query, Post, Body, Patch, Param, UseGuards } from '@nestjs/common';
+// lavanderia.controller.ts
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { LavanderiaService } from './lavanderia.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { IngresarLavadoDto, ActualizarEstadoDto } from './dto/lavanderia.dto';
+import { CreateLavanderiaDto } from './dto/create-lavanderia.dto';
+import { UpdateLavanderiaDto } from './dto/update-lavanderia.dto';
 
-@Controller('lavanderia')
+@Controller('lavanderias')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class LavanderiaController {
   constructor(private readonly lavanderiaService: LavanderiaService) {}
 
   @Roles('administrador')
   @Post()
-  ingresar(@Body() dto: IngresarLavadoDto) {
-    return this.lavanderiaService.ingresarPrenda(dto);
+  create(@Body() dto: CreateLavanderiaDto) {
+    return this.lavanderiaService.create(dto);
+  }
+
+  @Get()
+  findAll(@Query('nombre') nombre?: string) {
+    return this.lavanderiaService.findAll(nombre);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.lavanderiaService.findOne(id);
   }
 
   @Roles('administrador')
   @Patch(':id')
-  actualizarEstado(@Param('id') id: string, @Body() dto: ActualizarEstadoDto) {
-    return this.lavanderiaService.actualizarEstado(id, dto);
+  update(@Param('id') id: number, @Body() dto: UpdateLavanderiaDto) {
+    return this.lavanderiaService.update(id, dto);
   }
 
-  @Get()
-  findAll(
-    @Query('estado') estado?: string,
-    @Query('prendaId') prendaId?: string,
-    @Query('desde') desde?: string,
-    @Query('hasta') hasta?: string,
-  ) {
-    return this.lavanderiaService.findAll({ estado, prendaId, desde, hasta });
+  @Roles('administrador')
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.lavanderiaService.remove(id);
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lavanderiaService.findOne(id);
-  }
+  @Get(':id/movimientos')
+  findWithMovimientos(@Param('id') id: number) {
+  return this.lavanderiaService.findWithMovimientos(id);
+}
 }

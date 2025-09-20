@@ -3,8 +3,8 @@ import { Movimiento } from '../movimientos/movimiento.entity';
 
 @Entity('unidades_clinicas')
 export class UnidadClinica {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id_unidad: number;
 
   @Column()
   nombre: string;

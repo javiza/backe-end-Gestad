@@ -1,24 +1,27 @@
-import { IsNotEmpty, IsOptional, IsString, IsInt, Min } from 'class-validator';
+// dto/create-prenda.dto.ts
+import { IsNotEmpty, IsOptional, IsString, IsNumber, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePrendaDto {
   @ApiProperty({ example: 'Bata', description: 'Nombre de la prenda' })
   @IsNotEmpty()
   @IsString()
-  nombre_prenda: string;
-
-  @ApiProperty({ example: 50, description: 'Cantidad inicial' })
-  @IsInt()
-  @Min(0)
-  cantidad: number;
+  @MaxLength(100)
+  nombre: string;
 
   @ApiProperty({ example: 'Talla M', required: false })
   @IsOptional()
   @IsString()
   detalle?: string;
 
-  @ApiProperty({ example: 'Uniforme', required: false })
+  @ApiProperty({ example: 0.5, description: 'Peso en kilogramos', required: false })
   @IsOptional()
+  @IsNumber()
+  peso?: number;
+
+  @ApiProperty({ example: 'Uniforme', description: 'Tipo de prenda' })
+  @IsNotEmpty()
   @IsString()
-  tipo?: string;
+  @MaxLength(20)
+  tipo: string;
 }

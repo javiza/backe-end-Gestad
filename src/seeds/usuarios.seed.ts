@@ -6,7 +6,9 @@ import { Baja } from '../modules/bajas/bajas.entity';
 import { Lavanderia } from '../modules/lavanderia/lavanderia.entity';
 import { Reparacion } from '../modules/reparaciones/reparaciones.entity';
 import { UnidadClinica } from '../modules/unidades_clinicas/unidades_clinicas.entity';
-import { Inventario } from '../modules/inventario/inventario.entity';
+import { InventarioGeneral } from '../modules/inventario/inventario.entity';
+import { Reproceso } from 'src/modules/reprocesos/reproceso.entity';
+import { Roperia } from 'src/modules/roperias/roperia.entity';
 
 import * as bcrypt from 'bcryptjs';
 
@@ -16,8 +18,8 @@ const AppDataSource = new DataSource({
   port: 5432,
   username: 'jona',
   password: '1234',
-  database: 'gestadroperia',
-  entities: [Usuario, Movimiento, Prenda, Baja, Lavanderia, Reparacion, UnidadClinica, Inventario], // <-- Agrégala aquí
+  database: 'roperia',
+  entities: [Usuario, Movimiento, Prenda, Baja, Lavanderia, Reparacion, UnidadClinica, InventarioGeneral, Reproceso, Roperia], // <-- Agrégala aquí
   synchronize: false, // aca true solo para desarrollo en caso de que cree tablas automáticamente
 });
 

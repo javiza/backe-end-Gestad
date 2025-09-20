@@ -3,8 +3,8 @@ import { Movimiento } from '../movimientos/movimiento.entity';
 
 @Entity('usuarios')
 export class Usuario {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ name: 'nombre_usuario', type: 'varchar', length: 100 })
   nombre_usuario: string;
@@ -29,8 +29,8 @@ export class Usuario {
   @Column({ default: true })
   activo: boolean;
 
-  @CreateDateColumn({ name: 'fecha_ingreso' })
-  fecha_ingreso: Date;
+  @CreateDateColumn({ name: 'fecha_creacion' })
+  fecha_creacion: Date;
 
   @OneToMany(() => Movimiento, (mov) => mov.usuario)
   movimientos: Movimiento[];

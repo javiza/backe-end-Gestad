@@ -4,10 +4,10 @@ import { LavanderiaService } from './lavanderia.service';
 import { LavanderiaController } from './lavanderia.controller';
 import { Lavanderia } from './lavanderia.entity';
 import { Movimiento } from '../movimientos/movimiento.entity';
-import { Prenda } from '../prendas/prendas.entity';
+
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lavanderia, Movimiento, Prenda])],
+  imports: [TypeOrmModule.forFeature([Lavanderia, Movimiento])],
   providers: [LavanderiaService],
   controllers: [LavanderiaController],
 })

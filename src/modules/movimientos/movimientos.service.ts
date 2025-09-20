@@ -30,7 +30,7 @@ export class MovimientosService {
     return this.repo.find({ relations: ['prenda', 'unidad', 'usuario', 'baja', 'lavanderia'] });
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const movimiento = await this.repo.findOne({
       where: { id },
       relations: ['prenda', 'unidad', 'usuario', 'baja', 'lavanderia'],
@@ -42,14 +42,14 @@ export class MovimientosService {
   }
 
   async create(dto: CreateMovimientoDto) {
-    const prenda = await this.prendasRepo.findOne({ where: { id: dto.prendaId } });
+    const prenda = await this.prendasRepo.findOne({ where: { id_prenda: dto.prendaId } });
     if (!prenda) {
       throw new BadRequestException('Prenda no encontrada');
     }
 
     let unidad: UnidadClinica | null = null;
     if (dto.unidadId) {
-      unidad = await this.unidadesRepo.findOne({ where: { id: dto.unidadId } });
+      unidad = await this.unidadesRepo.findOne({ where: { id_unidad: dto.unidadId } });
       if (!unidad) {
         throw new BadRequestException('Unidad clínica no encontrada');
       }
@@ -82,17 +82,20 @@ export class MovimientosService {
   const movimiento = this.repo.create({
   cantidad: dto.cantidad,
   tipo_movimiento: dto.tipo_movimiento,
+  operacion: dto.operacion, // ✅ ahora se setea
   observacion: dto.observacion,
   prenda,
   unidad,
   usuario,
   baja,
   lavanderia,
-} as DeepPartial<Movimiento>);//tuve que forzar a que reconozca como objeto y no array
+} as DeepPartial<Movimiento>);
+
 return this.repo.save(movimiento);
+
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     const movimiento = await this.findOne(id);
     await this.repo.remove(movimiento);
   }

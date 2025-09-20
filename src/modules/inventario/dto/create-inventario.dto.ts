@@ -1,10 +1,12 @@
-import { IsUUID, IsInt, Min } from 'class-validator';
+import { IsInt, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateInventarioDto {
-  @IsUUID()
-  id_prenda: string;
+  @IsInt()
+  @Type(() => Number)   // convierte string → number automáticamente en las requests
+  id_prenda: number;
 
   @IsInt()
   @Min(0)
-  cantidad_stock: number;
+  cantidad: number;
 }

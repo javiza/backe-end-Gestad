@@ -10,30 +10,37 @@ import { CreateBajaDto } from './dto/create-baja.dto';
 export class BajasController {
   constructor(private readonly bajasService: BajasService) {}
 
-  @Roles('administrador')
+  @Roles('administrador', 'usuario')
   @Post()
-  create(@Body() createBajaDto: CreateBajaDto) {
-    return this.bajasService.create(createBajaDto);
+  create(@Body() dto: CreateBajaDto) {
+    return this.bajasService.create(dto);
   }
 
   @Get()
   findAll(
-    @Query('prendaId') prendaId?: string,
     @Query('motivo') motivo?: string,
     @Query('desde') desde?: string,
     @Query('hasta') hasta?: string,
   ) {
-    return this.bajasService.findAll({ prendaId, motivo, desde, hasta });
+    return this.bajasService.findAll({ motivo, desde, hasta });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.bajasService.findOne(id);
   }
 
-  @Roles('administrador')
+  @Roles('administrador', 'usuario')
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.bajasService.remove(id);
   }
+  @Get(':id/movimientos')
+findWithMovimientos(
+  @Param('id') id: number,
+  @Query('desde') desde?: string,
+  @Query('hasta') hasta?: string,
+) {
+  return this.bajasService.findWithMovimientos(id, desde, hasta);
+}
 }

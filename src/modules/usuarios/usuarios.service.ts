@@ -29,11 +29,11 @@ export class UsuariosService {
   }
 
   async findAll(): Promise<Usuario[]> {
-    return this.usuariosRepo.find({ select: ['id', 'nombre_usuario', 'email', 'rol', 'fecha_ingreso'] });
+    return this.usuariosRepo.find({ select: ['id', 'nombre_usuario', 'email', 'rol', 'fecha_creacion'] });
   }
 
-  async findOne(id: string): Promise<Usuario> {
-    const usuario = await this.usuariosRepo.findOne({ where: { id }, select: ['id', 'nombre_usuario', 'email', 'rol', 'fecha_ingreso'] });
+  async findOne(id: number): Promise<Usuario> {
+    const usuario = await this.usuariosRepo.findOne({ where: { id }, select: ['id', 'nombre_usuario', 'email', 'rol', 'fecha_creacion'] });
     if (!usuario) {
       throw new NotFoundException('Usuario no encontrado');
     }
@@ -48,7 +48,7 @@ export class UsuariosService {
   }
 
 
-  async update(id: string, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {
+  async update(id: number, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {
     const usuario = await this.usuariosRepo.preload({ id, ...updateUsuarioDto });
     if (!usuario) {
       throw new NotFoundException('Usuario no encontrado');
@@ -59,7 +59,7 @@ export class UsuariosService {
     return this.usuariosRepo.save(usuario);
   }
 
-async remove(id: string): Promise<void> {
+async remove(id: number): Promise<void> {
   const usuario = await this.usuariosRepo.findOne({ where: { id } });
   if (!usuario) {
     throw new NotFoundException('Usuario no encontrado');

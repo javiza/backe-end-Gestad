@@ -9,6 +9,8 @@ import { MovimientosModule } from './modules/movimientos/movimientos.module';
 import { LavanderiaModule } from './modules/lavanderia/lavanderia.module';
 import { ReparacionesModule } from './modules/reparaciones/reparaciones.module';
 import { BajasModule } from './modules/bajas/bajas.module';
+import { ReprocesosModule } from './modules/reprocesos/reprocesos.module';
+import { RoperiasModule } from './modules/roperias/roperias.module';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { BajasModule } from './modules/bajas/bajas.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true, // solo en desarrollo
+      synchronize: false, // solo en desarrollo
     }),
     UsuariosModule,
     AuthModule,
@@ -31,6 +33,8 @@ import { BajasModule } from './modules/bajas/bajas.module';
     LavanderiaModule,
     ReparacionesModule,
     BajasModule,
+    ReprocesosModule,
+    RoperiasModule,
   ],
 })
 export class AppModule {}
