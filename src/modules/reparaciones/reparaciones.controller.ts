@@ -23,14 +23,14 @@ import { UpdateReparacionDto } from './dto/update-reparacion.dto';
 export class ReparacionesController {
   constructor(private readonly reparacionesService: ReparacionesService) {}
 
-  /** Crear reparación */
+  //Crear reparación 
   @Roles('administrador','usuarios')
   @Post()
   create(@Body() dto: CreateReparacionDto) {
     return this.reparacionesService.create(dto);
   }
 
-  /** Listar reparaciones con filtros de fecha y paginación */
+  //Listar reparaciones con filtros de fecha y paginación 
   @Get()
   findAll(
     @Query('desde') desde?: string,
@@ -46,20 +46,20 @@ export class ReparacionesController {
     });
   }
 
-  /** Buscar reparación por ID */
+  //Buscar reparación por ID 
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.reparacionesService.findOne(id);
   }
 
-  /** Actualizar reparación */
+  //Actualizar reparación
  @Roles('administrador', 'usuarios')
 @Put(':id')
 update(@Param('id') id: number, @Body() dto: UpdateReparacionDto) {
   return this.reparacionesService.update(id, dto);
 }
 
-  /** Eliminar reparación */
+  // Eliminar reparación 
   @Roles('administrador', 'usuarios')
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

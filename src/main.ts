@@ -8,9 +8,9 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalHttpExceptionFilter());
 
-  // Habilitar CORS para tu frontend
+  // Habilitar CORS para el frontend
   app.enableCors({
-    origin: 'http://localhost:8100', // URL de tu frontend Ionic
+    origin: 'http://localhost:8100', // URL frontend
     credentials: true,               // permite enviar cookies o headers de autenticación
   });
 

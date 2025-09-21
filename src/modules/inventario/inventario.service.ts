@@ -10,7 +10,7 @@ export class InventarioService {
     private readonly inventarioRepo: Repository<InventarioGeneral>,
   ) {}
 
-  // ✅ obtiene el stock de una prenda
+  // obtiene el stock de una prenda
   async getStock(id_prenda: number): Promise<number> {
     const inventario = await this.inventarioRepo.findOne({
       where: { prenda: { id_prenda: id_prenda } },
@@ -23,7 +23,7 @@ export class InventarioService {
     return inventario.cantidad;
   }
 
-  // ✅ lista el inventario con paginación
+  // lista el inventario con paginación
   async getInventario(page = 1, limit = 20) {
     const skip = (page - 1) * limit;
 

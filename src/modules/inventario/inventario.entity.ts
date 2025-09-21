@@ -1,4 +1,3 @@
-// inventario-general.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Prenda } from '../prendas/prendas.entity';
 

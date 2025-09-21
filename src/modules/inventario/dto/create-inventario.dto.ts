@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 
 export class CreateInventarioDto {
   @IsInt()
-  @Type(() => Number)   // convierte string → number automáticamente en las requests
+  @Type(() => Number)   // convierte string a number automáticamente en las requests
   id_prenda: number;
 
   @IsInt()

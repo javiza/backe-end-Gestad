@@ -18,7 +18,7 @@ export class ReparacionesService {
     private readonly repo: Repository<Reparacion>,
   ) {}
 
-  /** Crear una reparación */
+  //Crear una reparación 
   async create(dto: CreateReparacionDto): Promise<Reparacion> {
     const reparacion = this.repo.create({
       descripcion: dto.descripcion,
@@ -27,7 +27,7 @@ export class ReparacionesService {
     return this.repo.save(reparacion);
   }
 
-  /** Listar reparaciones con filtros y paginación */
+  //Listar reparaciones con filtros y paginación 
   async findAll(filter: ReparacionFilter = {}) {
     const where: FindOptionsWhere<Reparacion> = {};
 
@@ -51,7 +51,7 @@ export class ReparacionesService {
     return { total, page, limit, data };
   }
 
-  /** Buscar reparación por ID */
+  //Buscar reparación por ID 
   async findOne(id: number): Promise<Reparacion> {
     const rep = await this.repo.findOne({ where: { id } });
     if (!rep) {
@@ -60,14 +60,14 @@ export class ReparacionesService {
     return rep;
   }
 
-  /** Actualizar reparación */
+  // Actualizar reparación 
   async update(id: number, dto: UpdateReparacionDto): Promise<Reparacion> {
   const rep = await this.findOne(id);
   Object.assign(rep, dto);
   return this.repo.save(rep);
 }
 
-  /** Eliminar reparación */
+  // Eliminar reparación 
   async remove(id: number): Promise<void> {
     const rep = await this.findOne(id);
     await this.repo.remove(rep);

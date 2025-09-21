@@ -1,4 +1,4 @@
-// dto/update-lavanderia.dto.ts
+
 import { IsString, Matches, IsOptional } from 'class-validator';
 
 export class UpdateLavanderiaDto {

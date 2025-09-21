@@ -36,7 +36,7 @@ export class ReprocesosService {
     await this.repo.remove(reproceso);
   }
 
-  // reproceso.service.ts
+  // buscar movimiento por id
 async findWithMovimientos(id: number, desde?: string, hasta?: string) {
   const query = this.repo.createQueryBuilder('reproceso')
     .leftJoinAndSelect('reproceso.movimientos', 'movimientos')

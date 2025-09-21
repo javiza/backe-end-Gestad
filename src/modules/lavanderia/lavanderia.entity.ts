@@ -1,4 +1,3 @@
-// lavanderia.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Movimiento } from '../movimientos/movimiento.entity';
 

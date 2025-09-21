@@ -82,7 +82,7 @@ export class MovimientosService {
   const movimiento = this.repo.create({
   cantidad: dto.cantidad,
   tipo_movimiento: dto.tipo_movimiento,
-  operacion: dto.operacion, // ✅ ahora se setea
+  operacion: dto.operacion, 
   observacion: dto.observacion,
   prenda,
   unidad,

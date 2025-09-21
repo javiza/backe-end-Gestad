@@ -1,4 +1,3 @@
-// lavanderia.controller.ts
 import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { LavanderiaService } from './lavanderia.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';

@@ -1,4 +1,3 @@
-// prendas.controller.ts
 import {
   Controller,
   Get,

@@ -1,4 +1,4 @@
-// dto/create-lavanderia.dto.ts
+
 import { IsNotEmpty, IsString, Matches, IsOptional } from 'class-validator';
 
 export class CreateLavanderiaDto {

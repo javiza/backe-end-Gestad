@@ -1,4 +1,4 @@
-// prendas.entity.ts
+
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
 import { Movimiento } from '../movimientos/movimiento.entity';
 import { InventarioGeneral } from '../inventario/inventario.entity';
@@ -20,11 +20,11 @@ export class Prenda {
   @Column({ type: 'varchar', length: 20 })
   tipo: string;
 
-  // 🔹 Relación 1 a N con movimientos
+  // Relación 1 a N con movimientos
   @OneToMany(() => Movimiento, mov => mov.prenda)
   movimientos: Movimiento[];
 
-  // 🔹 Relación 1 a 1 con inventario
+  // Relación 1 a 1 con inventario
   @OneToOne(() => InventarioGeneral, inv => inv.prenda)
   inventario: InventarioGeneral;
 }

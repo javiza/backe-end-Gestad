@@ -35,7 +35,7 @@ export class RoperiasService {
     const roperia = await this.findOne(id);
     await this.repo.remove(roperia);
   }
-  // roperia.service.ts
+
 async findWithMovimientos(id: number, desde?: string, hasta?: string) {
   const query = this.repo.createQueryBuilder('roperia')
     .leftJoinAndSelect('roperia.movimientos', 'movimientos')

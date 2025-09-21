@@ -1,4 +1,3 @@
-// dto/create-prenda.dto.ts
 import { IsNotEmpty, IsOptional, IsString, IsNumber, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
