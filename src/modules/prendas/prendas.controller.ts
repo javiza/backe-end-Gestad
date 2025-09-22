@@ -20,7 +20,9 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-
+import { CreatePrendaConMovimientoDto } from './dto/create-prenda-con-movimiento.dto';
+import { UseGuards, Req } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @ApiTags('prendas')
 @ApiBearerAuth()
 @Controller('prendas')
@@ -84,4 +86,26 @@ export class PrendasController {
   ) {
     return this.prendasService.findWithMovimientos(id, desde, hasta);
   }
+@Post('ingresar')
+@UseGuards(JwtAuthGuard) // 🔒 protege la ruta con JWT
+@ApiOperation({ summary: 'Crear prenda y registrar movimiento en ropería' })
+@ApiResponse({ status: 201, description: 'Prenda creada con su primer movimiento' })
+@ApiResponse({ status: 400, description: 'Error en los datos enviados' })
+async createWithMovimiento(
+  @Body() dto: CreatePrendaConMovimientoDto,
+  @Req() req,
+) {
+  console.log('DTO recibido:', dto);
+  console.log('usuario autenticado:', req.user);
+
+  const userId = req.user.id; // id del usuario autenticado (payload JWT)
+  const result = await this.prendasService.createWithMovimiento(dto, userId);
+
+  return {
+    message: 'Prenda creada y movimiento registrado en ropería',
+    prenda: result.prenda,
+    fechaMovimiento: result.movimiento.fecha,
+  };
+}
+
 }

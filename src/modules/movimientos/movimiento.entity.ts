@@ -45,7 +45,7 @@ export class Movimiento {
   @Column({ type: 'int', default: 1 })
   cantidad: number;
 
- @Column({ type: 'enum', enum: TipoMovimientoDB })
+  @Column({ type: 'enum', enum: TipoMovimientoDB })
   tipo_movimiento: TipoMovimientoDB;
 
   @Column({ type: 'enum', enum: Operacion })

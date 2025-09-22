@@ -8,6 +8,7 @@ import { UnidadClinica } from '../unidades_clinicas/unidades_clinicas.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Baja } from '../bajas/bajas.entity';
 import { Lavanderia } from '../lavanderia/lavanderia.entity';
+import { Roperia } from '../roperias/roperia.entity'; 
 
 @Module({
   imports: [
@@ -18,9 +19,11 @@ import { Lavanderia } from '../lavanderia/lavanderia.entity';
       Usuario,
       Baja,
       Lavanderia,
+      Roperia
     ]),
   ],
   providers: [MovimientosService],
   controllers: [MovimientosController],
+  exports: [MovimientosService],
 })
 export class MovimientosModule {}

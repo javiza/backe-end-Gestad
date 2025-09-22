@@ -18,7 +18,7 @@ export class CreatePrendaDto {
   @IsNumber()
   peso?: number;
 
-  @ApiProperty({ example: 'Uniforme', description: 'Tipo de prenda' })
+  @ApiProperty({ example: 'Verde', description: 'Tipo de prenda' })
   @IsNotEmpty()
   @IsString()
   @MaxLength(20)

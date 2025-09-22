@@ -13,14 +13,21 @@ export class AuthService {
 
   async validateUser(email: string, pass: string) {
   const user = await this.usuariosService.findByEmail(email);
+  console.log('🔍 Usuario encontrado:', user);
+
   if (!user) {
     throw new UnauthorizedException('Credenciales inválidas');
   }
   if (!user.activo) {
     throw new UnauthorizedException('Usuario desactivado');
   }
-  
+
+  console.log('👉 Password plano recibido:', pass);
+  console.log('👉 Hash en DB:', user.password);
+
   const passwordValid = await bcrypt.compare(pass, user.password);
+  console.log('✅ Coinciden?', passwordValid);
+
   if (!passwordValid) {
     throw new UnauthorizedException('Credenciales inválidas');
   }

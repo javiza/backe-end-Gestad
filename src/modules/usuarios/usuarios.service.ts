@@ -29,7 +29,7 @@ export class UsuariosService {
   }
 
   async findAll(): Promise<Usuario[]> {
-    return this.usuariosRepo.find({ select: ['id', 'nombre_usuario', 'email', 'rol', 'fecha_creacion'] });
+    return this.usuariosRepo.find({ select: ['id', 'nombre_usuario', 'rut', 'email', 'rol', 'fecha_creacion'] });
   }
 
   async findOne(id: number): Promise<Usuario> {
@@ -40,12 +40,25 @@ export class UsuariosService {
     return usuario;
   }
 
-  async findByEmail(email: string): Promise<Usuario | null> {
-  return this.usuariosRepo.findOne({
+async findByEmail(email: string): Promise<Usuario | null> {
+  const usuario = await this.usuariosRepo.findOne({
     where: { email },
-    select: ['id', 'nombre_usuario', 'email', 'rol', 'activo', 'password'], 
-     });
-  }
+    select: [
+      'id',
+      'nombre_usuario',
+      'email',
+      'password',   // 👈 incluimos explícitamente
+      'rol',
+      'activo',
+    ],
+  });
+
+  console.log('📌 findByEmail → Usuario devuelto:', usuario);
+  return usuario;
+}
+
+
+
 
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {

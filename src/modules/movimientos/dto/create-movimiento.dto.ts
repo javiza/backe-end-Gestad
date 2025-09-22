@@ -13,7 +13,7 @@ export class CreateMovimientoDto {
   @ApiProperty({ example: 1, description: 'ID de la prenda' })
   @IsNotEmpty()
   @IsInt()
-  prendaId: number;
+  id_prenda: number;
 
   @ApiProperty({ example: 1, description: 'Cantidad de prendas' })
   @IsInt()
@@ -29,24 +29,20 @@ export class CreateMovimientoDto {
     enum: Operacion,
     description: 'Define si el movimiento suma (entrada) o resta (salida) del stock',
   })
-  @IsNotEmpty() 
+  @IsNotEmpty()
   @IsEnum(Operacion)
   operacion: Operacion;
-
-  @ApiProperty({ example: 1, required: false })
-  @IsOptional()
-  @IsInt()
-  unidadId?: number;
-
-  @ApiProperty({ example: 1, required: false })
-  @IsOptional()
-  @IsInt()
-  usuarioId?: number;
 
   @ApiProperty({ example: 'Prenda asignada', required: false })
   @IsOptional()
   @IsString()
   observacion?: string;
+
+  // Relacionales opcionales
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsInt()
+  unidadId?: number;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
@@ -71,5 +67,11 @@ export class CreateMovimientoDto {
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @IsInt()
-  roperiaId?: number;
+  id_roperia?: number;
+
+  // Usuario que ejecuta
+  @ApiProperty({ example: 1, description: 'ID del usuario que ejecuta el movimiento' })
+  @IsNotEmpty()
+  @IsInt()
+  id_usuario: number;
 }
