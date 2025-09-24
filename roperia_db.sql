@@ -166,9 +166,12 @@ EXECUTE FUNCTION actualizar_inventario_general();
 
 INSERT INTO usuarios (nombre_usuario, rut, email, password, rol)
 VALUES
-('Admin', '11111111-1', 'admin@correo.cl', '$2b$10$8Ah3UQnLQq3ZbEtGxwLkSuXCMzFiIKlYqvYp1h98jFYTHzFQO/hca', 'administrador'),
-('Usuario', '22222222-2', 'usuario@correo.cl', '$2b$10$gDWNjN1TXqNMezqcwXNz0uCnmP9f6wX4x9o0F9FO1PTSyqfqbhwOa', 'usuario');
+('Admin', '11111111-1', 'admin@correo.cl', '$2b$10$LpTPgqRoqgn/6p36sixWCu2TWR6quRN.NbZDTKE1OJQl7Fv7JO.Sy', 'administrador'),
+('Usuario', '22222222-2', 'usuario@correo.cl', '$2b$10$a.cvUAhtIbH2xHKOYU.0mOhwLAz35KRXTj.0uBIr43K.xJL1ifFju', 'usuario');
 
+INSERT INTO usuarios (nombre_usuario, rut, email, password, rol)
+VALUES
+('jona', '22222222-5', 'usuario3@correo.cl', '$2b$10$a.cvUAhtIbH2xHKOYU.0mOhwLAz35KRXTj.0uBIr43K.xJL1ifFju', 'usuario');
 INSERT INTO roperias (nombre_encargado, email, lugar)
 VALUES ('María Pérez', 'maria.perez@chillan.cl', 'Clinica Chillan');
 
@@ -177,5 +180,5 @@ VALUES ('Lavandería Romero', '76543210-9', '+56 9 1234 5678');
 
 INSERT INTO unidades_clinicas (nombre_unidad, anexo, nombre_encargado)
 VALUES ('Urgencias', '3099', 'Dr. Juan Soto');
-
+DELETE FROM usuarios WHERE id = 2;
 

@@ -9,6 +9,8 @@ import { Usuario } from '../usuarios/usuarios.entity';
 import { Baja } from '../bajas/bajas.entity';
 import { Lavanderia } from '../lavanderia/lavanderia.entity';
 import { Roperia } from '../roperias/roperia.entity'; 
+import { Reproceso } from '../reprocesos/reproceso.entity';
+import { Reparacion } from '../reparaciones/reparaciones.entity';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { Roperia } from '../roperias/roperia.entity';
       Usuario,
       Baja,
       Lavanderia,
-      Roperia
+      Roperia,
+      Reproceso,
+      Reparacion
     ]),
   ],
   providers: [MovimientosService],

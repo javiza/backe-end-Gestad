@@ -35,5 +35,5 @@ export class CreatePrendaConMovimientoDto {
   @ApiProperty({ example: 1, description: 'ID de la ropería donde se ingresará la prenda', required: false })
   @IsInt()
   @IsOptional()
-  id_roperia?: number; // 👈 agregado
+  id_roperia?: number; 
 }

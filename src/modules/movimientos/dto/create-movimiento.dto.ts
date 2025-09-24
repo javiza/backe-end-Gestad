@@ -42,27 +42,27 @@ export class CreateMovimientoDto {
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @IsInt()
-  unidadId?: number;
+  id_unidad?: number;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @IsInt()
-  bajaId?: number;
+  id_baja?: number;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @IsInt()
-  lavanderiaId?: number;
+  id_lavanderia?: number;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @IsInt()
-  reprocesoId?: number;
+  id_reproceso?: number;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
   @IsInt()
-  reparacionId?: number;
+  id_reparacion?: number;
 
   @ApiProperty({ example: 1, required: false })
   @IsOptional()
