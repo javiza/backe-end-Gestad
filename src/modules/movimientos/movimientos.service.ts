@@ -177,4 +177,12 @@ export class MovimientosService {
     const movimiento = await this.findOne(id);
     await this.repo.remove(movimiento);
   }
+  async update(id: number, dto: CreateMovimientoDto) {
+  const movimiento = await this.findOne(id);
+  this.validarIdsPorTipo(dto);
+  // actualizar campos permitidos
+  Object.assign(movimiento, dto);
+  return this.repo.save(movimiento);
+}
+
 }
