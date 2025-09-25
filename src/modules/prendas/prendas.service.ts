@@ -27,7 +27,7 @@ export class PrendasService {
 
   const prendas = await query.getMany();
 
-  // 🔧 devolvemos cada prenda con su último movimiento
+  // devolvemos cada prenda con su último movimiento
   return prendas.map((p) => {
     const ultimoMovimiento = p.movimientos?.[0]; // el más reciente por el orderBy
     return {
