@@ -9,10 +9,12 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalHttpExceptionFilter());
 
   // Habilitar CORS para el frontend
-  app.enableCors({
-    origin: ['http://localhost:8100','https://gestad-jm4z.onrender.com'], // URL frontend
-    credentials: true,               // permite enviar cookies o headers de autenticación
-  });
+app.enableCors({
+  origin: ['http://localhost:8100','https://gestad-jm4z.onrender.com'],
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+})
 
   // Configuración Swagger
   const config = new DocumentBuilder()
