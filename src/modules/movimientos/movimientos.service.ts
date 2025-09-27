@@ -1,52 +1,43 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  MethodNotAllowedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DeepPartial } from 'typeorm';
-import { Movimiento, TipoMovimientoDB } from './movimiento.entity';
+import { Repository, DeepPartial, FindOptionsWhere } from 'typeorm';
+import { Movimiento, TipoEntidad } from './movimiento.entity';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
 import { Prenda } from '../prendas/prendas.entity';
 import { UnidadClinica } from '../unidades_clinicas/unidades_clinicas.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
-import { Baja } from '../bajas/bajas.entity';
-import { Lavanderia } from '../lavanderia/lavanderia.entity';
-import { Roperia } from '../roperias/roperia.entity';
-import { Reproceso } from '../reprocesos/reproceso.entity';         
-import { Reparacion } from '../reparaciones/reparaciones.entity';   
+import { Inventario } from '../inventario/inventario.entity';
 
 @Injectable()
 export class MovimientosService {
   constructor(
-    @InjectRepository(Movimiento)
-    private readonly repo: Repository<Movimiento>,
-    @InjectRepository(Prenda)
-    private readonly prendasRepo: Repository<Prenda>,
-    @InjectRepository(UnidadClinica)
-    private readonly unidadesRepo: Repository<UnidadClinica>,
-    @InjectRepository(Usuario)
-    private readonly usuariosRepo: Repository<Usuario>,
-    @InjectRepository(Baja)
-    private readonly bajasRepo: Repository<Baja>,
-    @InjectRepository(Lavanderia)
-    private readonly lavanderiasRepo: Repository<Lavanderia>,
-    @InjectRepository(Roperia)
-    private readonly roperiasRepo: Repository<Roperia>,
-    @InjectRepository(Reproceso)                             
-    private readonly reprocesosRepo: Repository<Reproceso>,
-    @InjectRepository(Reparacion)                              
-    private readonly reparacionesRepo: Repository<Reparacion>,
+    @InjectRepository(Movimiento) private readonly repo: Repository<Movimiento>,
+    @InjectRepository(Prenda) private readonly prendasRepo: Repository<Prenda>,
+    @InjectRepository(UnidadClinica) private readonly unidadesRepo: Repository<UnidadClinica>,
+    @InjectRepository(Usuario) private readonly usuariosRepo: Repository<Usuario>,
+    @InjectRepository(Inventario) private readonly inventarioRepo: Repository<Inventario>, // 👈 agregado
   ) {}
 
-  // incluir reproceso y reparacion en las relaciones
-  findAll() {
-    return this.repo.find({
-      relations: ['prenda', 'unidad', 'usuario', 'baja', 'lavanderia', 'roperia', 'reproceso', 'reparacion'],
-      order: { fecha: 'DESC' }, // recomendable ordenar por fecha
+  async findAllPaginated(page = 1, limit = 20) {
+    const [data, total] = await this.repo.findAndCount({
+      relations: ['prenda', 'usuario', 'desde_unidad', 'hacia_unidad'],
+      order: { fecha: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findOne(id: number) {
     const movimiento = await this.repo.findOne({
-      where: { id },
-      relations: ['prenda', 'unidad', 'usuario', 'baja', 'lavanderia', 'roperia', 'reproceso', 'reparacion'],
+      where: { id_movimiento: id },
+      relations: ['prenda', 'usuario', 'desde_unidad', 'hacia_unidad'],
     });
     if (!movimiento) {
       throw new NotFoundException('Movimiento no encontrado');
@@ -54,135 +45,116 @@ export class MovimientosService {
     return movimiento;
   }
 
-  // helper: validar que sólo se haya entregado el id relacional correspondiente al tipo
-  private validarIdsPorTipo(dto: CreateMovimientoDto) {
-    const map = {
-      roperia: dto.id_roperia,
-      lavanderia: dto.id_lavanderia,
-      reproceso: dto.id_reproceso,
-      unidad_clinica: dto.id_unidad,
-      reparacion: dto.id_reparacion,
-      baja: dto.id_baja,
-    } as Record<string, any>;
+  async create(dto: CreateMovimientoDto, userId: number) {
+  // 1. Validar prenda por nombre
+  const prenda = await this.prendasRepo.findOne({ where: { nombre: dto.nombre_prenda } });
+  if (!prenda) {
+    throw new BadRequestException(`Prenda '${dto.nombre_prenda}' no encontrada`);
+  }
 
-    const provided = Object.entries(map).filter(([_, v]) => v !== undefined && v !== null);
-    if (provided.length === 0) {
-      throw new BadRequestException('Debe proveer el id correspondiente al tipo de movimiento');
+  // 2. Validar usuario autenticado
+  const usuario = await this.usuariosRepo.findOne({ where: { id: userId } });
+  if (!usuario) {
+    throw new BadRequestException('Usuario no encontrado');
+  }
+
+  // 3. Validar unidades
+  let desde_unidad: UnidadClinica | null = null;
+  if (dto.desde_tipo === TipoEntidad.UNIDAD) {
+    if (!dto.desde_id_unidad) {
+      throw new BadRequestException('Se requiere desde_id_unidad');
     }
-    if (provided.length > 1) {
-      throw new BadRequestException('Solo se debe proporcionar un id relacional acorde al tipo de movimiento');
-    }
-    const [key] = provided[0];
-    if (key !== dto.tipo_movimiento) {
-      throw new BadRequestException(`El id proporcionado (${key}) no corresponde al tipo_movimiento '${dto.tipo_movimiento}'`);
+    desde_unidad = await this.unidadesRepo.findOne({ where: { id_unidad: dto.desde_id_unidad } });
+    if (!desde_unidad) {
+      throw new BadRequestException('Unidad origen no encontrada');
     }
   }
 
-  async create(dto: CreateMovimientoDto) {
-    // validar prenda
-    const prenda = await this.prendasRepo.findOne({ where: { id_prenda: dto.id_prenda } });
-    if (!prenda) {
-      throw new BadRequestException('Prenda no encontrada');
+  let hacia_unidad: UnidadClinica | null = null;
+  if (dto.hacia_tipo === TipoEntidad.UNIDAD) {
+    if (!dto.hacia_id_unidad) {
+      throw new BadRequestException('Se requiere hacia_id_unidad');
     }
-
-    // validar exclusividad de ids relacionales según tipo_movimiento
-    this.validarIdsPorTipo(dto);
-
-    // Referencia a unidad clínica
-    let unidad: UnidadClinica | null = null;
-    if (dto.id_unidad) {
-      unidad = await this.unidadesRepo.findOne({ where: { id_unidad: dto.id_unidad } });
-      if (!unidad) {
-        throw new BadRequestException('Unidad clínica no encontrada');
-      }
+    hacia_unidad = await this.unidadesRepo.findOne({ where: { id_unidad: dto.hacia_id_unidad } });
+    if (!hacia_unidad) {
+      throw new BadRequestException('Unidad destino no encontrada');
     }
-
-    // Referencia a usuario
-    let usuario: Usuario | null = null;
-    if (dto.id_usuario) {
-      usuario = await this.usuariosRepo.findOne({ where: { id: dto.id_usuario } });
-      if (!usuario) {
-        throw new BadRequestException('Usuario no encontrado');
-      }
-    }
-
-    // Referencia a baja
-    let baja: Baja | null = null;
-    if (dto.id_baja) {
-      baja = await this.bajasRepo.findOne({ where: { id: dto.id_baja } });
-      if (!baja) {
-        throw new BadRequestException('Baja no encontrada');
-      }
-    }
-
-    // Referencia a lavandería
-    let lavanderia: Lavanderia | null = null;
-    if (dto.id_lavanderia) {
-      lavanderia = await this.lavanderiasRepo.findOne({ where: { id: dto.id_lavanderia } });
-      if (!lavanderia) {
-        throw new BadRequestException('Lavandería no encontrada');
-      }
-    }
-
-    // Referencia a ropería
-    let roperia: Roperia | null = null;
-    if (dto.id_roperia) {
-      roperia = await this.roperiasRepo.findOne({ where: { id: dto.id_roperia } });
-      if (!roperia) {
-        throw new BadRequestException('Ropería no encontrada');
-      }
-    }
-
-    // Referencia a reproceso 
-    let reproceso: Reproceso | null = null;
-    if (dto.id_reproceso) {
-      reproceso = await this.reprocesosRepo.findOne({ where: { id: dto.id_reproceso } });
-      if (!reproceso) {
-        throw new BadRequestException('Reproceso no encontrado');
-      }
-    }
-
-    // Referencia a reparación (nuevo)
-    let reparacion: Reparacion | null = null;
-    if (dto.id_reparacion) {
-      reparacion = await this.reparacionesRepo.findOne({ where: { id: dto.id_reparacion } });
-      if (!reparacion) {
-        throw new BadRequestException('Reparación no encontrada');
-      }
-    }
-
-    // Crear movimiento (asignando objetos de relación)
-    const movimiento = this.repo.create({
-      cantidad: dto.cantidad,
-      tipo_movimiento: dto.tipo_movimiento,
-      operacion: dto.operacion,
-      observacion: dto.observacion,
-      prenda,
-      unidad,
-      usuario,
-      baja,
-      lavanderia,
-      roperia,
-      reproceso,
-      reparacion,
-    } as DeepPartial<Movimiento>);
-
-    const saved = await this.repo.save(movimiento);
-
-    // retornar el movimiento con relaciones cargadas para el frontend
-    return this.findOne(saved.id);
   }
+
+  // 4. Crear movimiento
+  const movimiento = this.repo.create({
+    cantidad: dto.cantidad,
+    desde_tipo: dto.desde_tipo,
+    hacia_tipo: dto.hacia_tipo,
+    descripcion: dto.descripcion,
+    prenda,
+    usuario,
+    desde_unidad,
+    hacia_unidad,
+  } as DeepPartial<Movimiento>);
+
+  const saved = await this.repo.save(movimiento);
+
+  // 5. Actualizar inventarios usando prenda.id_prenda
+  await this.ajustarStock(prenda.id_prenda, dto.desde_tipo, -dto.cantidad, dto.desde_id_unidad);
+  await this.ajustarStock(prenda.id_prenda, dto.hacia_tipo, dto.cantidad, dto.hacia_id_unidad);
+
+  // 6. Retornar movimiento completo
+  return this.findOne(saved.id_movimiento);
+}
+
+
+
 
   async remove(id: number) {
     const movimiento = await this.findOne(id);
     await this.repo.remove(movimiento);
   }
-  async update(id: number, dto: CreateMovimientoDto) {
-  const movimiento = await this.findOne(id);
-  this.validarIdsPorTipo(dto);
-  // actualizar campos permitidos
-  Object.assign(movimiento, dto);
-  return this.repo.save(movimiento);
+
+  async update(): Promise<never> {
+    throw new MethodNotAllowedException('Actualizar movimientos está deshabilitado por consistencia de inventario');
+  }
+
+  // Ajuste de stock en inventarios
+  private async ajustarStock(
+  id_prenda: number,
+  tipo: TipoEntidad,
+  cantidad: number,
+  id_unidad?: number,
+) {
+  const where: FindOptionsWhere<Inventario> = {
+    prenda: { id_prenda } as any,
+    tipo_entidad: tipo,
+  };
+
+  if (tipo === TipoEntidad.UNIDAD && id_unidad) {
+    where.unidad = { id_unidad } as any;
+  }
+
+  let inventario = await this.inventarioRepo.findOne({
+    where,
+    relations: ['prenda', 'unidad'],
+  });
+
+  if (!inventario) {
+    inventario = this.inventarioRepo.create({
+      prenda: { id_prenda } as any,
+      tipo_entidad: tipo,
+      unidad: id_unidad ? ({ id_unidad } as any) : null,
+      cantidad: 0,
+    });
+  }
+
+  inventario.cantidad += cantidad;
+
+  if (inventario.cantidad < 0) {
+    throw new BadRequestException(
+      `Stock insuficiente para la prenda ${id_prenda} en ${tipo}` +
+        (id_unidad ? ` (unidad ${id_unidad})` : ''),
+    );
+  }
+
+  await this.inventarioRepo.save(inventario);
 }
 
 }

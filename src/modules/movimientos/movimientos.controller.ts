@@ -1,43 +1,58 @@
-import { Controller, Get, Post, Delete, Param, Body, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  Query,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { MovimientosService } from './movimientos.service';
 import { CreateMovimientoDto } from './dto/create-movimiento.dto';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';//swagger
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('movimientos')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('movimientos')
 export class MovimientosController {
-  constructor(private readonly movimientosService: MovimientosService) {}
+  constructor(private readonly service: MovimientosService) {}
 
-  @ApiOperation({ summary: 'Listar movimientos' })
-  @ApiResponse({ status: 200, description: 'Listado de movimientos' })
+  @ApiOperation({ summary: 'Listar movimientos con paginación' })
   @Get()
-  findAll() {
-    return this.movimientosService.findAll();
+  findAll(@Query('page') page = '1', @Query('limit') limit = '20') {
+    return this.service.findAllPaginated(Number(page), Number(limit));
   }
 
-  @ApiOperation({ summary: 'Obtener movimiento por id' })
-  @ApiResponse({ status: 200, description: 'Movimiento encontrado' })
-  @ApiResponse({ status: 404, description: 'Movimiento no encontrado' })
- @Get(':id')
-findOne(@Param('id', ParseIntPipe) id: number) {
-  return this.movimientosService.findOne(id);
-}
+  @ApiOperation({ summary: 'Obtener un movimiento por ID' })
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.service.findOne(id);
+  }
 
-  @ApiOperation({ summary: 'Crear movimiento' })
-  @ApiResponse({ status: 201, description: 'Movimiento creado' })
+    @ApiOperation({ summary: 'Registrar un nuevo movimiento' })
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() dto: CreateMovimientoDto) {
-    return this.movimientosService.create(dto);
+  create(@Body() dto: CreateMovimientoDto, @Req() req: any) {
+    const userId = req.user.sub; //  token JWT
+    return this.service.create(dto, userId);
   }
 
-  @ApiOperation({ summary: 'Eliminar movimiento' })
-  @ApiResponse({ status: 204, description: 'Movimiento eliminado' })
-  @ApiResponse({ status: 404, description: 'Movimiento no encontrado' })
+  @ApiOperation({ summary: 'Eliminar un movimiento' })
   @Delete(':id')
-@HttpCode(HttpStatus.NO_CONTENT)
-async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-  await this.movimientosService.remove(id);
-}
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.service.remove(id);
+  }
 }

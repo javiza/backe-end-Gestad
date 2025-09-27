@@ -3,25 +3,23 @@ import { Movimiento } from '../movimientos/movimiento.entity';
 
 @Entity('unidades_clinicas')
 export class UnidadClinica {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id_unidad' })
   id_unidad: number;
 
-  @Column()
-  nombre: string;
+  @Column({ type: 'varchar', length: 100 })
+  nombre_unidad: string;
 
-  @Column({ nullable: true })
-  descripcion: string;
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  anexo?: string;
 
-  @Column({ nullable: true })
-  encargado: string;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  nombre_encargado?: string;
 
-  @Column({ nullable: true })
-  telefono: string;
+  // Relación con movimientos que salen desde la unidad
+  @OneToMany(() => Movimiento, (mov) => mov.desde_unidad)
+  movimientosDesde: Movimiento[];
 
-  @Column({ nullable: true })
-  correo: string;
-
-  // Relación con movimientos (histórico)
-  @OneToMany(() => Movimiento, mov => mov.unidad)
-  movimientos: Movimiento[];
+  // Relación con movimientos que llegan a la unidad
+  @OneToMany(() => Movimiento, (mov) => mov.hacia_unidad)
+  movimientosHacia: Movimiento[];
 }

@@ -1,7 +1,6 @@
-
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Movimiento } from '../movimientos/movimiento.entity';
-import { InventarioGeneral } from '../inventario/inventario.entity';
+import { Inventario } from '../inventario/inventario.entity';
 
 @Entity('prendas')
 export class Prenda {
@@ -17,14 +16,15 @@ export class Prenda {
   @Column({ type: 'float', nullable: true })
   peso?: number;
 
-  @Column({ type: 'varchar', length: 20 })
-  tipo: string;
+  @OneToMany(() => Movimiento, (mov: Movimiento) => mov.prenda, {
+  cascade: ['remove'],  
+})
+movimientos: Movimiento[];
 
-  // Relación 1 a N con movimientos
-  @OneToMany(() => Movimiento, mov => mov.prenda)
-  movimientos: Movimiento[];
+@OneToMany(() => Inventario, (inv: Inventario) => inv.prenda, {
+  eager: true,
+  cascade: ['remove'],   
+})
+inventarios: Inventario[];
 
-  // Relación 1 a 1 con inventario
-  @OneToOne(() => InventarioGeneral, inv => inv.prenda)
-  inventario: InventarioGeneral;
 }

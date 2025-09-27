@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 interface JwtPayload {
-  sub: string;  // aca esta el id del usuario
+  sub: number;
   email: string;
   rol: 'administrador' | 'usuario';
 }
@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET!, 
+      secretOrKey: process.env.JWT_SECRET || 'default_secret', // lo agregue en caso de error borrar
     });
   }
 
@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token inválido o incompleto');
     }
 
+    // Esto es lo que estará disponible en req.user
     return {
       id: payload.sub,
       email: payload.email,

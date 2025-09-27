@@ -1,17 +1,24 @@
-import {IsEmail, IsNotEmpty, IsString, MinLength, IsIn, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsIn,
+  Matches,
+  IsEnum,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-//falta la logica para validar rut chileno
+import { IsRutChileno } from 'src/common/validators/rut.validator';
+import { RolUsuario } from '../usuarios.entity';
 export class CreateUsuarioDto {
   @ApiProperty({ example: 'Juan Pérez', description: 'Nombre completo del usuario' })
   @IsNotEmpty()
   @IsString()
   nombre_usuario: string;
 
-  @ApiProperty({ example: '12345678-9', description: 'RUT chileno con guion' })
+  @ApiProperty({ example: '12345678-9', description: 'RUT chileno válido con guion' })
   @IsNotEmpty()
-  @Matches(/^\d{7,8}-[0-9Kk]$/, {
-    message: 'El RUT debe tener el formato 12345678-9',
-  })
+  @IsRutChileno({ message: 'El RUT no es válido' })
   rut: string;
 
   @ApiProperty({ example: 'juan@correo.cl', description: 'Email del usuario' })
@@ -26,7 +33,7 @@ export class CreateUsuarioDto {
   })
   password: string;
 
-  @ApiProperty({ example: 'administrador', enum: ['administrador', 'usuario'] })
-  @IsIn(['administrador', 'usuario'])
-  rol: 'administrador' | 'usuario';
+  @ApiProperty({ example: 'administrador', enum: RolUsuario })
+@IsEnum(RolUsuario, { message: 'El rol debe ser administrador o usuario' })
+rol: RolUsuario;
 }

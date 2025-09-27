@@ -7,43 +7,37 @@ import { LoginDto } from './dto/login.dto';
 @Injectable()
 export class AuthService {
   constructor(
-    private usuariosService: UsuariosService,
-    private jwtService: JwtService,
+    private readonly usuariosService: UsuariosService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, pass: string) {
-  const user = await this.usuariosService.findByEmail(email);
-  console.log('Usuario encontrado:', user);
+    const user = await this.usuariosService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+    if (!user.activo) {
+      throw new UnauthorizedException('Usuario desactivado');
+    }
 
-  if (!user) {
-    throw new UnauthorizedException('Credenciales inválidas');
+    const passwordValid = await bcrypt.compare(pass, user.password);
+    if (!passwordValid) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    return user;
   }
-  if (!user.activo) {
-    throw new UnauthorizedException('Usuario desactivado');
-  }
-
-  console.log('Password plano recibido:', pass);
-  console.log('Hash en DB:', user.password);
-
-  const passwordValid = await bcrypt.compare(pass, user.password);
-  console.log('Coinciden', passwordValid);
-
-  if (!passwordValid) {
-    throw new UnauthorizedException('Credenciales inválidas');
-  }
-
-  return user;
-}
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    const payload = { email: user.email, sub: user.id, rol: user.rol };
+    const payload = { sub: user.id, email: user.email, rol: user.rol };
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
-        nombre_usuario: user.nombre_usuario, 
+        nombre_usuario: user.nombre_usuario,
         email: user.email,
         rol: user.rol,
       },

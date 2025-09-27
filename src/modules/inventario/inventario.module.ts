@@ -1,13 +1,13 @@
+import { InventariosController } from './inventario.controller';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { InventarioGeneral } from './inventario.entity';
-import { InventarioService } from './inventario.service';
-import { InventarioController } from './inventario.controller';
+import { Inventario } from './inventario.entity';
+import { InventariosService } from './inventario.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([InventarioGeneral])],
-  providers: [InventarioService],
-  controllers: [InventarioController],
-  exports: [InventarioService],
+  imports: [TypeOrmModule.forFeature([Inventario])],
+  providers: [InventariosService],
+  controllers: [InventariosController],
+  exports: [InventariosService],
 })
-export class InventarioModule {}
+export class InventariosModule {}

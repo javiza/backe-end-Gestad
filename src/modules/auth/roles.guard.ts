@@ -1,22 +1,34 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+
+type Rol = 'administrador' | 'usuario';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    const roles = this.reflector.getAllAndOverride<Rol[]>('roles', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
     if (!roles) {
       return true;
-    } //  aca en caso que no haya roles definidos,  se dá el acceso libre
+    }
 
-    const request = context.switchToHttp().getRequest();
-    const {user} = request;
+    const { user } = context.switchToHttp().getRequest();
 
     if (!user) {
-      throw new ForbiddenException('Usuario no autenticado');
+      throw new UnauthorizedException('Usuario no autenticado');
     }
+
     if (!roles.includes(user.rol)) {
       throw new ForbiddenException('No tienes permisos para esta acción');
     }

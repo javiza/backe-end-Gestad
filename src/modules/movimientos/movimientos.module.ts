@@ -7,10 +7,8 @@ import { Prenda } from '../prendas/prendas.entity';
 import { UnidadClinica } from '../unidades_clinicas/unidades_clinicas.entity';
 import { Usuario } from '../usuarios/usuarios.entity';
 import { Baja } from '../bajas/bajas.entity';
-import { Lavanderia } from '../lavanderia/lavanderia.entity';
-import { Roperia } from '../roperias/roperia.entity'; 
 import { Reproceso } from '../reprocesos/reproceso.entity';
-import { Reparacion } from '../reparaciones/reparaciones.entity';
+import { Inventario } from '../inventario/inventario.entity';
 
 @Module({
   imports: [
@@ -20,10 +18,8 @@ import { Reparacion } from '../reparaciones/reparaciones.entity';
       UnidadClinica,
       Usuario,
       Baja,
-      Lavanderia,
-      Roperia,
       Reproceso,
-      Reparacion
+      Inventario
     ]),
   ],
   providers: [MovimientosService],

@@ -1,26 +1,27 @@
-import { IsNotEmpty, IsOptional, IsString, IsNumber, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsOptional, Min, IsInt } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePrendaDto {
-  @ApiProperty({ example: 'Bata', description: 'Nombre de la prenda' })
+  @ApiProperty({ example: 'Sábana', description: 'Nombre de la prenda' })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(100)
   nombre: string;
 
-  @ApiProperty({ example: 'Talla M', required: false })
+  @ApiProperty({ example: 'Sábana de algodón 1 plaza', required: false })
   @IsOptional()
   @IsString()
   detalle?: string;
 
-  @ApiProperty({ example: 0.5, description: 'Peso en kilogramos', required: false })
+  @ApiProperty({ example: 1.2, description: 'Peso de la prenda en kg', required: false })
   @IsOptional()
   @IsNumber()
+  @Min(0.1)
   peso?: number;
+  
+  @ApiProperty({ example: 30, description: 'Cantidad inicial en ropería', required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  cantidad?: number;
 
-  @ApiProperty({ example: 'Verde', description: 'Tipo de prenda' })
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(20)
-  tipo: string;
 }

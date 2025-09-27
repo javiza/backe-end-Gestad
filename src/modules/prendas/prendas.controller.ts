@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PrendasService } from './prendas.service';
 import { CreatePrendaDto } from './dto/create-prenda.dto';
@@ -20,24 +21,24 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { CreatePrendaConMovimientoDto } from './dto/create-prenda-con-movimiento.dto';
-import { UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 @ApiTags('prendas')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('prendas')
 export class PrendasController {
   constructor(private readonly prendasService: PrendasService) {}
 
-  @ApiOperation({ summary: 'Listar prendas' })
-  @ApiResponse({ status: 200, description: 'Listado de prendas' })
+  @ApiOperation({ summary: 'Listar prendas (incluye inventario)' })
+  @ApiResponse({ status: 200, description: 'Listado de prendas con inventario' })
   @Get()
   findAll(@Query('nombre') nombre?: string) {
     return this.prendasService.findAll(nombre);
   }
 
-  @ApiOperation({ summary: 'Obtener prenda por id (incluye inventario)' })
-  @ApiResponse({ status: 200, description: 'Prenda encontrada' })
+  @ApiOperation({ summary: 'Obtener prenda por ID (incluye inventario)' })
+  @ApiResponse({ status: 200, description: 'Prenda encontrada con inventario' })
   @ApiResponse({ status: 404, description: 'Prenda no encontrada' })
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -71,41 +72,12 @@ export class PrendasController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.prendasService.remove(id);
   }
-
-  @ApiOperation({ summary: 'Obtener prenda con historial de movimientos' })
-  @ApiResponse({
-    status: 200,
-    description: 'Prenda con su historial de movimientos',
-  })
-  @ApiResponse({ status: 404, description: 'Prenda no encontrada' })
-  @Get(':id/movimientos')
-  findWithMovimientos(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('desde') desde?: string,
-    @Query('hasta') hasta?: string,
-  ) {
-    return this.prendasService.findWithMovimientos(id, desde, hasta);
-  }
-@Post('ingresar')
-@UseGuards(JwtAuthGuard) // 🔒 protege la ruta con JWT
-@ApiOperation({ summary: 'Crear prenda y registrar movimiento en ropería' })
-@ApiResponse({ status: 201, description: 'Prenda creada con su primer movimiento' })
-@ApiResponse({ status: 400, description: 'Error en los datos enviados' })
-async createWithMovimiento(
-  @Body() dto: CreatePrendaConMovimientoDto,
-  @Req() req,
-) {
-  console.log('DTO recibido:', dto);
-  console.log('usuario autenticado:', req.user);
-
-  const userId = req.user.id; // id del usuario autenticado (payload JWT)
-  const result = await this.prendasService.createWithMovimiento(dto, userId);
-
-  return {
-    message: 'Prenda creada y movimiento registrado en ropería',
-    prenda: result.prenda,
-    fechaMovimiento: result.movimiento.fecha,
-  };
+  @Delete()
+@ApiOperation({ summary: 'Eliminar prenda por nombre y fecha de actualización' })
+async removeByNombreYFecha(
+  @Query('nombre') nombre: string,
+  @Query('fecha') fecha: string,
+): Promise<void> {
+  return this.prendasService.removeByNombreYFecha(nombre, fecha);
 }
-
 }

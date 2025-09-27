@@ -1,130 +1,147 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Prenda } from './prendas.entity';
 import { CreatePrendaDto } from './dto/create-prenda.dto';
 import { UpdatePrendaDto } from './dto/update-prenda.dto';
-import { MovimientosService } from '../movimientos/movimientos.service';
-import { CreatePrendaConMovimientoDto } from './dto/create-prenda-con-movimiento.dto';
-import { TipoMovimientoDB, Operacion } from '../movimientos/movimiento.entity';
+import { Inventario } from '../inventario/inventario.entity';
 
 @Injectable()
 export class PrendasService {
   constructor(
     @InjectRepository(Prenda)
     private readonly repo: Repository<Prenda>,
-    private readonly movimientosService: MovimientosService,
+    @InjectRepository(Inventario)
+    private readonly inventarioRepo: Repository<Inventario>, // agregado
   ) {}
 
-  async findAll(nombre?: string) {
-  const query = this.repo.createQueryBuilder('prenda')
-    .leftJoinAndSelect('prenda.movimientos', 'movimiento')
-    .orderBy('movimiento.fecha', 'DESC');
+  async create(dto: CreatePrendaDto): Promise<Prenda> {
+  // 1. Crear y guardar la prenda
+  const prenda = this.repo.create(dto);
+  const saved = await this.repo.save(prenda);
 
-  if (nombre) {
-    query.where('prenda.nombre ILIKE :nombre', { nombre: `%${nombre}%` });
-  }
-
-  const prendas = await query.getMany();
-
-  // devolvemos cada prenda con su último movimiento
-  return prendas.map((p) => {
-    const ultimoMovimiento = p.movimientos?.[0]; // el más reciente por el orderBy
-    return {
-      id_prenda: p.id_prenda,
-      nombre: p.nombre,
-      detalle: p.detalle,
-      tipo: p.tipo,
-      peso: p.peso,
-      cantidad: ultimoMovimiento?.cantidad ?? 0,
-      fechaIngreso: ultimoMovimiento?.fecha ?? null,
-    };
+  // 2. Crear inventario inicial en ropería
+  const inventario = this.inventarioRepo.create({
+    prenda: saved as Prenda,  // se asegura que no es null
+    tipo_entidad: 'roperia',
+    cantidad: dto.cantidad ?? 0,
   });
+
+  await this.inventarioRepo.save(inventario);
+
+  // 3. Devolver la prenda con inventario incluido
+  return this.repo.findOne({
+    where: { id_prenda: saved.id_prenda },
+    relations: ['inventarios'],
+  }) as Promise<Prenda>;
 }
 
 
-  async findOne(id: number) {
-    const prenda = await this.repo.findOne({ where: { id_prenda: id } });
-    if (!prenda) {
-      throw new NotFoundException('Prenda no encontrada');
+async findAll(nombre?: string): Promise<Prenda[]> {
+  if (nombre) {
+    return this.repo.find({
+      where: { nombre: ILike(`%${nombre}%`) },
+      order: { id_prenda: 'ASC' },
+      relations: ['inventarios', 'inventarios.unidad'], //trae nombre de unidad
+    });
+  }
+  return this.repo.find({
+    order: { id_prenda: 'ASC' },
+    relations: ['inventarios', 'inventarios.unidad'], 
+  });
+}
+
+async findOne(id: number): Promise<Prenda> {
+  const prenda = await this.repo.findOne({
+    where: { id_prenda: id },
+    relations: ['inventarios', 'inventarios.unidad'], 
+  });
+
+  if (!prenda) {
+    throw new NotFoundException('Prenda no encontrada');
+  }
+  return prenda;
+}
+
+
+  async update(id: number, dto: UpdatePrendaDto): Promise<Prenda> {
+  // Solo tomar campos que existen en Prenda
+  const prenda = await this.repo.preload({
+    id_prenda: id,
+    nombre: dto.nombre,
+    detalle: dto.detalle,
+    peso: dto.peso,
+  });
+
+  if (!prenda) {
+    throw new NotFoundException('Prenda no encontrada');
+  }
+
+  const saved = await this.repo.save(prenda);
+
+  // Manejo de cantidad → Inventario
+  if (dto.cantidad !== undefined) {
+    let inventario = await this.inventarioRepo.findOne({
+      where: { prenda: { id_prenda: id }, tipo_entidad: 'roperia' },
+    });
+
+    if (!inventario) {
+      inventario = this.inventarioRepo.create({
+        prenda: saved,
+        tipo_entidad: 'roperia',
+        cantidad: dto.cantidad,
+      });
+    } else {
+      inventario.cantidad = dto.cantidad;
     }
-    return prenda;
+
+    await this.inventarioRepo.save(inventario);
   }
 
-  create(dto: CreatePrendaDto) {
-    const prenda = this.repo.create(dto);
-    return this.repo.save(prenda);
-  }
+  return this.repo.findOne({
+    where: { id_prenda: saved.id_prenda },
+    relations: ['inventarios', 'inventarios.unidad'],
+  }) as Promise<Prenda>;
+}
 
-  async update(id: number, dto: UpdatePrendaDto) {
-    const prenda = await this.findOne(id);
-    Object.assign(prenda, dto);
-    return this.repo.save(prenda);
-  }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<void> {
     const prenda = await this.findOne(id);
     await this.repo.remove(prenda);
   }
 
-  async findWithMovimientos(id: number, desde?: string, hasta?: string) {
-    const query = this.repo.createQueryBuilder('prenda')
-      .leftJoinAndSelect('prenda.movimientos', 'movimientos')
-      .leftJoinAndSelect('movimientos.unidad', 'unidad')
-      .leftJoinAndSelect('movimientos.usuario', 'usuario')
-      .leftJoinAndSelect('movimientos.lavanderia', 'lavanderia')
-      .leftJoinAndSelect('movimientos.roperia', 'roperia')
-      .leftJoinAndSelect('movimientos.reproceso', 'reproceso')
-      .leftJoinAndSelect('movimientos.reparacion', 'reparacion')
-      .where('prenda.id_prenda = :id', { id });
+  //eliminar por fecha y nombre
+ async removeByNombreYFecha(nombre: string, fecha: string): Promise<void> {
+  const prenda = await this.repo.findOne({
+    where: { nombre: ILike(nombre) },
+    relations: ['inventarios'],
+  });
 
-    if (desde && hasta) {
-      query.andWhere('movimientos.fecha BETWEEN :desde AND :hasta', { desde, hasta });
-    } else if (desde) {
-      query.andWhere('movimientos.fecha >= :desde', { desde });
-    } else if (hasta) {
-      query.andWhere('movimientos.fecha <= :hasta', { hasta });
-    }
-
-    const prenda = await query.getOne();
-
-    if (!prenda) {
-      throw new NotFoundException('Prenda no encontrada');
-    }
-
-    return prenda;
+  if (!prenda) {
+    throw new NotFoundException(`No se encontró prenda con nombre: ${nombre}`);
   }
 
-  async createWithMovimiento(dto: CreatePrendaConMovimientoDto, userId: number) {
-  console.log('DTO recibido:', dto);
+  // Validar inventarios antes de eliminar
+  const inventario = prenda.inventarios.find(
+    (inv) =>
+      inv.ultima_actualizacion &&
+      inv.ultima_actualizacion.toISOString().split('T')[0] === fecha,
+  );
 
-  // 1. Crear la prenda
-  const prenda = this.repo.create({
-    nombre: dto.nombre,
-    detalle: dto.detalle,
-    peso: dto.peso,
-    tipo: dto.tipo,
-  });
-  await this.repo.save(prenda);
+  if (!inventario) {
+    throw new NotFoundException(
+      `No se encontró inventario con fecha ${fecha} para la prenda ${nombre}`,
+    );
+  }
 
-  // 2. Crear movimiento en ropería
-  const movimiento = await this.movimientosService.create({
-    id_prenda: prenda.id_prenda,
-    cantidad: dto.cantidad,
-    tipo_movimiento: TipoMovimientoDB.ROPERIA,
-    operacion: Operacion.ENTRADA,
-    observacion: 'Ingreso inicial en ropería',
-    id_usuario: userId,
-    id_roperia: dto.id_roperia ?? 1,
-  });
+  // primero eliminar inventarios asociados
+  if (prenda.inventarios.length > 0) {
+    await this.inventarioRepo.remove(prenda.inventarios);
+  }
 
-  // 3. Devolver prenda + fecha del movimiento
-  return {
-    prenda,
-    movimiento: {
-      fecha: movimiento.fecha,
-    },
-  };
+  // después eliminar la prenda
+  await this.repo.remove(prenda);
 }
+
 
 }

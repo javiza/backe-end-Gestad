@@ -3,81 +3,66 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  CreateDateColumn,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
+import { Usuario } from '../usuarios/usuarios.entity';
 import { Prenda } from '../prendas/prendas.entity';
 import { UnidadClinica } from '../unidades_clinicas/unidades_clinicas.entity';
-import { Usuario } from '../usuarios/usuarios.entity';
 import { Baja } from '../bajas/bajas.entity';
-import { Lavanderia } from '../lavanderia/lavanderia.entity';
 import { Reproceso } from '../reprocesos/reproceso.entity';
-import { Reparacion } from '../reparaciones/reparaciones.entity';
-import { Roperia } from '../roperias/roperia.entity';
 
-export enum TipoMovimientoDB {
+export enum TipoEntidad {
   ROPERIA = 'roperia',
   LAVANDERIA = 'lavanderia',
+  UNIDAD = 'unidad',
   REPROCESO = 'reproceso',
-  UNIDAD_CLINICA = 'unidad_clinica',
-  REPARACION = 'reparacion',
   BAJA = 'baja',
-}
-
-export enum Operacion {
-  ENTRADA = 'entrada',
-  SALIDA = 'salida',
 }
 
 @Entity('movimientos')
 export class Movimiento {
   @PrimaryGeneratedColumn({ name: 'id_movimiento' })
-  id: number;
+  id_movimiento: number;
 
-  @ManyToOne(() => Usuario, usuario => usuario.movimientos, { nullable: false })
-  @JoinColumn({ name: 'id_usuario' })
-  usuario: Usuario;
-
-  @ManyToOne(() => Prenda, prenda => prenda.movimientos, { nullable: false })
-  @JoinColumn({ name: 'id_prenda' })
-  prenda: Prenda;
-
-  @Column({ type: 'int', default: 1 })
+  @Column({ type: 'int' })
   cantidad: number;
 
-  @Column({ type: 'enum', enum: TipoMovimientoDB })
-  tipo_movimiento: TipoMovimientoDB;
+  @Column({ type: 'enum', enum: TipoEntidad, name: 'desde_tipo', nullable: true })
+  desde_tipo?: TipoEntidad;
 
-  @Column({ type: 'enum', enum: Operacion })
-  operacion: Operacion;
+  @ManyToOne(() => UnidadClinica, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'desde_id_unidad' })
+  desde_unidad?: UnidadClinica;
+
+  @Column({ type: 'enum', enum: TipoEntidad, name: 'hacia_tipo', nullable: true })
+  hacia_tipo?: TipoEntidad;
+
+  @ManyToOne(() => UnidadClinica, { nullable: true, onDelete: 'CASCADE'  })
+  @JoinColumn({ name: 'hacia_id_unidad' })
+  hacia_unidad?: UnidadClinica;
+
+  @Column({ type: 'text', nullable: true })
+  descripcion?: string;
 
   @CreateDateColumn({ name: 'fecha' })
   fecha: Date;
 
-  @ManyToOne(() => UnidadClinica, unidad => unidad.movimientos, { nullable: true })
-  @JoinColumn({ name: 'id_unidad' })
-  unidad?: UnidadClinica;
+  @ManyToOne(() => Usuario, (usuario) => usuario.movimientos, { eager: true })
+  @JoinColumn({ name: 'id_usuario' })
+  usuario: Usuario;
 
-  @ManyToOne(() => Baja, baja => baja.movimientos, { nullable: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'id_baja' })
-  baja?: Baja;
+  @ManyToOne(() => Prenda, (prenda) => prenda.movimientos, { eager: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'id_prenda' })
+  prenda: Prenda;
+  
+  
+  @ManyToOne(() => Baja, (baja) => baja.movimientos, { nullable: true, onDelete: 'SET NULL' })
+@JoinColumn({ name: 'id_baja' })
+baja?: Baja;
 
-  @ManyToOne(() => Lavanderia, lavado => lavado.movimientos, { nullable: true })
-  @JoinColumn({ name: 'id_lavanderia' })
-  lavanderia?: Lavanderia;
+@ManyToOne(() => Reproceso, (reproceso) => reproceso.movimientos, { nullable: true, onDelete: 'SET NULL' })
+@JoinColumn({ name: 'id_reproceso' })
+reproceso?: Reproceso;
 
-  @ManyToOne(() => Reproceso, repro => repro.movimientos, { nullable: true })
-  @JoinColumn({ name: 'id_reproceso' })
-  reproceso?: Reproceso;
-
-  @ManyToOne(() => Reparacion, rep => rep.movimientos, { nullable: true })
-  @JoinColumn({ name: 'id_reparacion' })
-  reparacion?: Reparacion;
-
-  @ManyToOne(() => Roperia, rop => rop.movimientos, { nullable: true })
-  @JoinColumn({ name: 'id_roperia' })
-  roperia?: Roperia;
-
-  @Column({ nullable: true, type: 'text' })
-  observacion?: string;
 }

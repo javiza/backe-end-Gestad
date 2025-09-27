@@ -3,27 +3,78 @@ import {
   Get,
   Param,
   Query,
-  UseGuards,
+  Post,
+  Body,
+  Put,
+  Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
-import { InventarioService } from './inventario.service';
+import { InventariosService } from './inventario.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { CreateInventarioDto } from './dto/create-inventario.dto';
+import { UpdateInventarioDto } from './dto/update-inventario-dto';
 
-@Controller('inventario')
-@UseGuards(JwtAuthGuard)
-export class InventarioController {
-  constructor(private readonly inventarioService: InventarioService) {}
+@ApiTags('inventarios')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('inventarios')
+export class InventariosController {
+  constructor(private readonly inventariosService: InventariosService) {}
 
-  @Get(':id_prenda')
-  getStock(@Param('id_prenda', ParseIntPipe) id_prenda: number) {
-    return this.inventarioService.getStock(id_prenda);
+  @Post()
+  @Roles('administrador')
+  @ApiOperation({ summary: 'Crear nuevo registro de inventario' })
+  create(@Body() dto: CreateInventarioDto) {
+    return this.inventariosService.create(dto);
   }
 
   @Get()
-  getInventario(
-    @Query('page') page = '1',
-    @Query('limit') limit = '20',
+  @ApiOperation({ summary: 'Listar inventario paginado' })
+  getAll(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 20,
   ) {
-    return this.inventarioService.getInventario(parseInt(page), parseInt(limit));
+    return this.inventariosService.findAll(page, limit);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener inventario por ID' })
+  getOne(@Param('id', ParseIntPipe) id: number) {
+    return this.inventariosService.findOne(id);
+  }
+
+  @Put(':id')
+  @Roles('administrador')
+  @ApiOperation({ summary: 'Actualizar inventario' })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateInventarioDto,
+  ) {
+    return this.inventariosService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @Roles('administrador')
+  @ApiOperation({ summary: 'Eliminar inventario' })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.inventariosService.remove(id);
+  }
+
+  @Get('stock/:id_prenda')
+  @ApiOperation({ summary: 'Consultar stock de una prenda en un contexto' })
+  getStock(
+    @Param('id_prenda', ParseIntPipe) id_prenda: number,
+    @Query('tipo') tipo_entidad: string,
+    @Query('id_unidad') id_unidad?: number,
+  ) {
+    return this.inventariosService.getStock(id_prenda, tipo_entidad, id_unidad);
   }
 }

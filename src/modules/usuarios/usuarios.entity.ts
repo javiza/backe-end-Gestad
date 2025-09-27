@@ -1,5 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Movimiento } from '../movimientos/movimiento.entity';
+
+// Enum para reflejar el CHECK de la base de datos
+export enum RolUsuario {
+  ADMIN = 'administrador',
+  USUARIO = 'usuario',
+}
 
 @Entity('usuarios')
 export class Usuario {
@@ -17,19 +29,20 @@ export class Usuario {
   })
   rut: string;
 
-  @Column({ unique: true, type: 'varchar', length: 150 })
+  @Column({ unique: true, type: 'varchar', length: 100 })
   email: string;
 
-  @Column({ select: false })
+  // No se expone en queries normales (ej: find)
+  @Column({ type: 'varchar', length: 255, select: false })
   password: string;
 
-  @Column({ type: 'varchar', length: 20 })
-  rol: 'administrador' | 'usuario';
+  @Column({ type: 'enum', enum: RolUsuario })
+  rol: RolUsuario;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   activo: boolean;
 
-  @CreateDateColumn({ name: 'fecha_creacion' })
+  @CreateDateColumn({ name: 'fecha_creacion', type: 'timestamp' })
   fecha_creacion: Date;
 
   @OneToMany(() => Movimiento, (mov) => mov.usuario)

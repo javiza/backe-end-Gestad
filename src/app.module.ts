@@ -6,11 +6,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UnidadesClinicasModule } from './modules/unidades_clinicas/unidades_clinicas.module';
 import { PrendasModule } from './modules/prendas/prendas.module';
 import { MovimientosModule } from './modules/movimientos/movimientos.module';
-import { LavanderiaModule } from './modules/lavanderia/lavanderia.module';
-import { ReparacionesModule } from './modules/reparaciones/reparaciones.module';
 import { BajasModule } from './modules/bajas/bajas.module';
 import { ReprocesosModule } from './modules/reprocesos/reprocesos.module';
-import { RoperiasModule } from './modules/roperias/roperias.module';
+import { InventariosModule } from './modules/inventario/inventario.module';
 
 @Module({
   imports: [
@@ -23,18 +21,16 @@ import { RoperiasModule } from './modules/roperias/roperias.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: false, // solo en desarrollo
+      synchronize: false, 
     }),
     UsuariosModule,
     AuthModule,
     UnidadesClinicasModule,
     PrendasModule,
+    InventariosModule, 
     MovimientosModule,
-    LavanderiaModule,
-    ReparacionesModule,
-    BajasModule,
     ReprocesosModule,
-    RoperiasModule,
+    BajasModule,
   ],
 })
 export class AppModule {}
