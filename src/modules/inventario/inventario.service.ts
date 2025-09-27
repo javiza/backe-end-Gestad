@@ -94,4 +94,25 @@ export class InventariosService {
 
     return inventario.cantidad;
   }
+  async buscarPorNombre(nombre: string) {
+  const inventarios = await this.inventarioRepo.find({
+    where: {
+      prenda: { nombre },
+    },
+    relations: ['prenda', 'unidad'],
+  });
+
+  if (!inventarios.length) {
+    throw new NotFoundException(`No se encontró inventario para la prenda: ${nombre}`);
+  }
+
+  // Transformar para devolver solo lo necesario
+  return inventarios.map(inv => ({
+    nombre: inv.prenda.nombre,
+    tipo_entidad: inv.tipo_entidad,
+    unidad: inv.unidad ? inv.unidad.nombre_unidad : null,
+    cantidad: inv.cantidad,
+  }));
+}
+
 }

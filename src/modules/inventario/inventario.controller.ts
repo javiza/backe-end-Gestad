@@ -9,6 +9,7 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { InventariosService } from './inventario.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -77,4 +78,12 @@ export class InventariosController {
   ) {
     return this.inventariosService.getStock(id_prenda, tipo_entidad, id_unidad);
   }
+  @Get('buscar/nombre')
+@ApiOperation({ summary: 'Buscar inventario por nombre de prenda' })
+async buscarPorNombre(@Query('nombre') nombre: string) {
+  if (!nombre) {
+    throw new BadRequestException('Debe enviar el nombre de la prenda');
+  }
+  return this.inventariosService.buscarPorNombre(nombre);
+}
 }
