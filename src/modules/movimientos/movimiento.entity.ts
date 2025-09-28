@@ -11,6 +11,7 @@ import { Prenda } from '../prendas/prendas.entity';
 import { UnidadClinica } from '../unidades_clinicas/unidades_clinicas.entity';
 import { Baja } from '../bajas/bajas.entity';
 import { Reproceso } from '../reprocesos/reproceso.entity';
+import { Reparacion } from '../reparacion/reparacion.entity';
 
 export enum TipoEntidad {
   ROPERIA = 'roperia',
@@ -18,6 +19,7 @@ export enum TipoEntidad {
   UNIDAD = 'unidad',
   REPROCESO = 'reproceso',
   BAJA = 'baja',
+  REPARACION = 'reparacion',
 }
 
 @Entity('movimientos')
@@ -60,6 +62,9 @@ export class Movimiento {
   @ManyToOne(() => Baja, (baja) => baja.movimientos, { nullable: true, onDelete: 'SET NULL' })
 @JoinColumn({ name: 'id_baja' })
 baja?: Baja;
+  @ManyToOne(() => Reparacion, (reparacion) => reparacion.movimientos, { nullable: true, onDelete: 'SET NULL' })
+@JoinColumn({ name: 'id_reparacion' })
+reparacion?: Reparacion;
 
 @ManyToOne(() => Reproceso, (reproceso) => reproceso.movimientos, { nullable: true, onDelete: 'SET NULL' })
 @JoinColumn({ name: 'id_reproceso' })

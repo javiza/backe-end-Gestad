@@ -20,7 +20,7 @@ export class MovimientosService {
     @InjectRepository(Prenda) private readonly prendasRepo: Repository<Prenda>,
     @InjectRepository(UnidadClinica) private readonly unidadesRepo: Repository<UnidadClinica>,
     @InjectRepository(Usuario) private readonly usuariosRepo: Repository<Usuario>,
-    @InjectRepository(Inventario) private readonly inventarioRepo: Repository<Inventario>, // 👈 agregado
+    @InjectRepository(Inventario) private readonly inventarioRepo: Repository<Inventario>, 
   ) {}
 
   async findAllPaginated(page = 1, limit = 20) {

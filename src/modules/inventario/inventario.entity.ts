@@ -21,9 +21,9 @@ export class Inventario {
   @Column({
     name: 'tipo_entidad',
     type: 'enum',
-    enum: ['roperia', 'lavanderia', 'unidad', 'reproceso', 'baja'],
+    enum: ['roperia', 'lavanderia', 'unidad', 'reproceso', 'baja', 'reparacion'],
   })
-  tipo_entidad: 'roperia' | 'lavanderia' | 'unidad' | 'reproceso' | 'baja';
+  tipo_entidad: 'roperia' | 'lavanderia' | 'unidad' | 'reproceso' | 'baja' | 'reparacion';
 
   @ManyToOne(() => UnidadClinica, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_unidad' })

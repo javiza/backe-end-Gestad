@@ -9,7 +9,7 @@ import { MovimientosModule } from './modules/movimientos/movimientos.module';
 import { BajasModule } from './modules/bajas/bajas.module';
 import { ReprocesosModule } from './modules/reprocesos/reprocesos.module';
 import { InventariosModule } from './modules/inventario/inventario.module';
-
+import { ReparacionModule } from './modules/reparacion/reparacion.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -31,6 +31,7 @@ import { InventariosModule } from './modules/inventario/inventario.module';
     MovimientosModule,
     ReprocesosModule,
     BajasModule,
+    ReparacionModule,
   ],
 })
 export class AppModule {}
