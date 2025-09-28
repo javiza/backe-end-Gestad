@@ -11,10 +11,10 @@ export class CreateInventarioDto {
   @ApiProperty({
     example: 'roperia',
     description: 'Entidad a la que pertenece el inventario',
-    enum: ['roperia', 'lavanderia', 'unidad', 'reproceso', 'baja'],
+    enum: ['roperia', 'lavanderia', 'unidad', 'reproceso', 'baja', 'reparacion'],
   })
-  @IsIn(['roperia', 'lavanderia', 'unidad', 'reproceso', 'baja'])
-  tipo_entidad: 'roperia' | 'lavanderia' | 'unidad' | 'reproceso' | 'baja';
+  @IsIn(['roperia', 'lavanderia', 'unidad', 'reproceso', 'baja', 'reparacion'])
+  tipo_entidad: 'roperia' | 'lavanderia' | 'unidad' | 'reproceso' | 'baja' | 'reparacion';
 
   @ApiPropertyOptional({
     example: 2,
